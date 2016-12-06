@@ -28,7 +28,12 @@ Welcome to SopCastComponentSDK, a good component for Android SopCast.
 >* Device must have a camera
 
 ### How to Use
-#### 1. Camera Configuration
+#### 1. Permissions
+At first you must get the needed permissions, the needed permissions can be seen in the
+sourcecode.
+
+**Attention:** After Android 6.0 you must request to get some permissions.
+#### 2. Camera Configuration
 
 ```
 CameraConfiguration.Builder cameraBuilder = new CameraConfiguration.Builder();
@@ -54,7 +59,7 @@ public static final Orientation DEFAULT_ORIENTATION = Orientation.PORTRAIT;
 public static final FocusMode DEFAULT_FOCUSMODE = FocusMode.AUTO;
 ```
 
-#### 2. Video Configuration
+#### 3. Video Configuration
 ```
 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
 videoBuilder.setSize(640, 360).setMime(DEFAULT_MIME)
@@ -80,7 +85,7 @@ public static final int DEFAULT_IFI = 2;
 public static final String DEFAULT_MIME = "video/avc";
 ```
 
-#### 3. Audio Configuration
+#### 4. Audio Configuration
 ```
 AudioConfiguration.Builder audioBuilder = new AudioConfiguration.Builder();
 audioBuilder.setAec(true).setBps(32, 64).setFrequency(48000).setMime(DEFAULT_MIME).
@@ -107,7 +112,7 @@ public static final int DEFAULT_CHANNEL_COUNT = 1;
 public static final boolean DEFAULT_AEC = false;
 ```
 
-#### 4. Packer
+#### 5. Packer
 ```
 RtmpPacker packer = new RtmpPacker();
 packer.initAudioParams(AudioConfiguration.DEFAULT_FREQUENCY, 16, false);
@@ -117,7 +122,7 @@ We provide flv packer and rtmp packer in this component, you also can define you
 The packer must implement the 'Packer' interface. The packer can pack up the video and audio data,
 the packed data will be send to the sender.
 
-#### 5. Sender
+#### 6. Sender
 ```
 String url = "rtmp://[host]:1935/[app]/[stream]";
 mRtmpSender = new RtmpSender(url);
@@ -129,12 +134,12 @@ mLFLiveView.setSender(mRtmpSender);
 We provide local and rtmp sender in this component, you also can define your packer too.
 The sender must implement the 'Sender' interface.
 
-#### 6. Effect
+#### 7. Effect
 We provide Null and Gray video effect, you also can define your video effect.
 ```
 mLFLiveView.setEffect(mGrayEffect);
 ```
-#### 7. Watermark
+#### 8. Watermark
 It's easy to set a watermark to the video, and the preview and the output video will
 display the watermark. Please set the watermark length-width ratio equals the
 bitmap length-width ratio.
@@ -144,7 +149,7 @@ Watermark watermark = new Watermark(watermarkImg, 50, 25, WatermarkPosition.WATE
 mLFLiveView.setWatermark(watermark);
 ```
 
-#### 8. CameraListener
+#### 9. CameraListener
 You can set a camera listener to this view, then you can get the camera feedback.
 ```
 //设置预览监听
@@ -166,7 +171,7 @@ mLFLiveView.setCameraOpenListener(new CameraListener() {
 });
 ```
 
-#### 9. LivingStartListener
+#### 10. LivingStartListener
 You can set a living start listener to this view, then you can get the starting feedback.
 ```
 mLFLiveView.setLivingStartListener(new CameraLivingView.LivingStartListener() {

@@ -1,8 +1,14 @@
 package com.laifeng.sopcastdemo;
 
+import android.app.Dialog;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -22,6 +28,8 @@ public class ScreenActivity extends ScreenRecordActivity {
     private ProgressBar mProgressConnecting;
     private VideoConfiguration mVideoConfiguration;
     private int mCurrentBps;
+    private Dialog mUploadDialog;
+    private EditText mAddressET;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +37,7 @@ public class ScreenActivity extends ScreenRecordActivity {
         setContentView(R.layout.activity_screen);
         initViews();
         initSender();
+        initRtmpAddressDialog();
     }
 
     private void initViews() {
@@ -39,23 +48,52 @@ public class ScreenActivity extends ScreenRecordActivity {
         mStartBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requestRecording();
+                mUploadDialog.show();
             }
         });
         mStopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mProgressConnecting.setVisibility(View.GONE);
-                Toast.makeText(ScreenActivity.this, "停止直播", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ScreenActivity.this, "stop living", Toast.LENGTH_SHORT).show();
                 stopRecording();
             }
         });
     }
 
+    private void initRtmpAddressDialog() {
+        LayoutInflater inflater = getLayoutInflater();
+        View playView = inflater.inflate(R.layout.address_dialog,(ViewGroup) findViewById(R.id.dialog));
+        mAddressET = (EditText) playView.findViewById(R.id.address);
+        Button okBtn = (Button) playView.findViewById(R.id.ok);
+        Button cancelBtn = (Button) playView.findViewById(R.id.cancel);
+        AlertDialog.Builder uploadBuilder = new AlertDialog.Builder(this);
+        uploadBuilder.setTitle("Upload Address");
+        uploadBuilder.setView(playView);
+        mUploadDialog = uploadBuilder.create();
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String uploadUrl = mAddressET.getText().toString();
+                if(TextUtils.isEmpty(uploadUrl)) {
+                    Toast.makeText(ScreenActivity.this, "Upload address is empty!", Toast.LENGTH_SHORT).show();
+                } else {
+                    mRtmpSender.setAddress(uploadUrl);
+                    requestRecording();
+                }
+                mUploadDialog.dismiss();
+            }
+        });
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mUploadDialog.dismiss();
+            }
+        });
+    }
+
     private void initSender() {
-        //设置发送器
-        String url = "rtmp://live.hkstv.hk.lxdns.com:1935/live/stream181";
-        mRtmpSender = new RtmpSender(url);
+        mRtmpSender = new RtmpSender();
         mRtmpSender.setVideoParams(640, 360);
         mRtmpSender.setAudioParams(AudioConfiguration.DEFAULT_FREQUENCY, 16, false);
         mRtmpSender.setSenderListener(mSenderListener);
@@ -79,7 +117,7 @@ public class ScreenActivity extends ScreenRecordActivity {
 
     private void connectServer() {
         mProgressConnecting.setVisibility(View.VISIBLE);
-        Toast.makeText(ScreenActivity.this, "开始连接服务器", Toast.LENGTH_SHORT).show();
+        Toast.makeText(ScreenActivity.this, "start to connect server", Toast.LENGTH_SHORT).show();
         mRtmpSender.connect();
     }
 
@@ -92,7 +130,7 @@ public class ScreenActivity extends ScreenRecordActivity {
         @Override
         public void onConnected() {
             mProgressConnecting.setVisibility(View.GONE);
-            Toast.makeText(ScreenActivity.this, "开始传输数据", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ScreenActivity.this, "start to upload data", Toast.LENGTH_SHORT).show();
             startRecording();
             mCurrentBps = mVideoConfiguration.maxBps;
         }
@@ -100,14 +138,14 @@ public class ScreenActivity extends ScreenRecordActivity {
         @Override
         public void onDisConnected() {
             mProgressConnecting.setVisibility(View.GONE);
-            Toast.makeText(ScreenActivity.this, "直播失去连接", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ScreenActivity.this, "Disconnect", Toast.LENGTH_SHORT).show();
             stopRecording();
         }
 
         @Override
         public void onPublishFail() {
             mProgressConnecting.setVisibility(View.GONE);
-            Toast.makeText(ScreenActivity.this, "直播发布失败", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ScreenActivity.this, "Fail to publish the stream", Toast.LENGTH_SHORT).show();
         }
 
         @Override

@@ -58,8 +58,11 @@ public class RtmpSender implements Sender, SendQueueListener {
         void onNetBad();
     }
 
-    public RtmpSender(String url) {
+    public RtmpSender() {
         rtmpConnection = new RtmpConnection();
+    }
+
+    public void setAddress(String url) {
         mRtmpUrl = url;
     }
 

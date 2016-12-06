@@ -1,12 +1,20 @@
 package com.laifeng.sopcastdemo;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -44,6 +52,8 @@ public class LandscapeActivity extends Activity {
     private RtmpSender mRtmpSender;
     private VideoConfiguration mVideoConfiguration;
     private int mCurrentBps;
+    private Dialog mUploadDialog;
+    private EditText mAddressET;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +63,7 @@ public class LandscapeActivity extends Activity {
         initViews();
         initListeners();
         initLiveView();
+        initRtmpAddressDialog();
     }
 
     private void initEffects() {
@@ -113,17 +124,48 @@ public class LandscapeActivity extends Activity {
             public void onClick(View v) {
                 if(isRecording) {
                     mProgressConnecting.setVisibility(View.GONE);
-                    Toast.makeText(LandscapeActivity.this, "停止直播", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LandscapeActivity.this, "stop living", Toast.LENGTH_SHORT).show();
                     mRecordBtn.setBackgroundResource(R.mipmap.ic_record_start);
                     mLFLiveView.stop();
                     isRecording = false;
                 } else {
+                    mUploadDialog.show();
+                }
+            }
+        });
+    }
+
+    private void initRtmpAddressDialog() {
+        LayoutInflater inflater = getLayoutInflater();
+        View playView = inflater.inflate(R.layout.address_dialog,(ViewGroup) findViewById(R.id.dialog));
+        mAddressET = (EditText) playView.findViewById(R.id.address);
+        Button okBtn = (Button) playView.findViewById(R.id.ok);
+        Button cancelBtn = (Button) playView.findViewById(R.id.cancel);
+        AlertDialog.Builder uploadBuilder = new AlertDialog.Builder(this);
+        uploadBuilder.setTitle("Upload Address");
+        uploadBuilder.setView(playView);
+        mUploadDialog = uploadBuilder.create();
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String uploadUrl = mAddressET.getText().toString();
+                if(TextUtils.isEmpty(uploadUrl)) {
+                    Toast.makeText(LandscapeActivity.this, "Upload address is empty!", Toast.LENGTH_SHORT).show();
+                } else {
+                    mRtmpSender.setAddress(uploadUrl);
                     mProgressConnecting.setVisibility(View.VISIBLE);
-                    Toast.makeText(LandscapeActivity.this, "开始连接", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LandscapeActivity.this, "start connecting", Toast.LENGTH_SHORT).show();
                     mRecordBtn.setBackgroundResource(R.mipmap.ic_record_stop);
                     mRtmpSender.connect();
                     isRecording = true;
                 }
+                mUploadDialog.dismiss();
+            }
+        });
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mUploadDialog.dismiss();
             }
         });
     }
@@ -151,17 +193,17 @@ public class LandscapeActivity extends Activity {
         mLFLiveView.setCameraOpenListener(new CameraListener() {
             @Override
             public void onOpenSuccess() {
-                Toast.makeText(LandscapeActivity.this, "摄像头开启成功", Toast.LENGTH_LONG).show();
+                Toast.makeText(LandscapeActivity.this, "camera open success", Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onOpenFail(int error) {
-                Toast.makeText(LandscapeActivity.this, "摄像头开启失败", Toast.LENGTH_LONG).show();
+                Toast.makeText(LandscapeActivity.this, "camera open fail", Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onCameraChange() {
-                Toast.makeText(LandscapeActivity.this, "摄像头切换", Toast.LENGTH_LONG).show();
+                Toast.makeText(LandscapeActivity.this, "camera switch", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -180,8 +222,7 @@ public class LandscapeActivity extends Activity {
         packer.initAudioParams(AudioConfiguration.DEFAULT_FREQUENCY, 16, false);
         mLFLiveView.setPacker(packer);
         //设置发送器
-        String url = "rtmp://live.hkstv.hk.lxdns.com:1935/live/stream181";
-        mRtmpSender = new RtmpSender(url);
+        mRtmpSender = new RtmpSender();
         mRtmpSender.setVideoParams(640, 360);
         mRtmpSender.setAudioParams(AudioConfiguration.DEFAULT_FREQUENCY, 16, false);
         mRtmpSender.setSenderListener(mSenderListener);
@@ -190,14 +231,14 @@ public class LandscapeActivity extends Activity {
             @Override
             public void startError(int error) {
                 //直播失败
-                Toast.makeText(LandscapeActivity.this, "开始直播失败", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LandscapeActivity.this, "start living fail", Toast.LENGTH_SHORT).show();
                 mLFLiveView.stop();
             }
 
             @Override
             public void startSuccess() {
                 //直播成功
-                Toast.makeText(LandscapeActivity.this, "开始直播", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LandscapeActivity.this, "start living", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -218,7 +259,7 @@ public class LandscapeActivity extends Activity {
         @Override
         public void onDisConnected() {
             mProgressConnecting.setVisibility(View.GONE);
-            Toast.makeText(LandscapeActivity.this, "直播失败", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LandscapeActivity.this, "fail to live", Toast.LENGTH_SHORT).show();
             mRecordBtn.setBackgroundResource(R.mipmap.ic_record_start);
             mLFLiveView.stop();
             isRecording = false;
@@ -227,7 +268,7 @@ public class LandscapeActivity extends Activity {
         @Override
         public void onPublishFail() {
             mProgressConnecting.setVisibility(View.GONE);
-            Toast.makeText(LandscapeActivity.this, "直播发布失败", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LandscapeActivity.this, "fail to publish stream", Toast.LENGTH_SHORT).show();
             mRecordBtn.setBackgroundResource(R.mipmap.ic_record_start);
             isRecording = false;
         }
