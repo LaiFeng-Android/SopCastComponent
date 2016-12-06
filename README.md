@@ -1,6 +1,6 @@
 ## SopCastComponentSDK
 Welcome to SopCastComponentSDK, a good component for Android SopCast.
-![sopcast](sopcast.png)
+![sopcast](sopcast.jpeg)
 
 ### Features
 >* Support Hardware Encoding
