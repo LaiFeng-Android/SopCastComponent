@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    tools:context="com.laifeng.sopcastdemo.MainActivity">
+
+    <com.laifeng.sopcastsdk.ui.CameraLivingView
+        android:id="@+id/liveView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <com.laifeng.sopcastdemo.ui.TopRightWeightedLayout
+        android:layout_width="75dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="visible"
+        android:background="#4d000000"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical">
+        <com.laifeng.sopcastdemo.ui.MultiToggleImageButton
+            android:id="@+id/record_mic_button"
+            style="@style/NiceOption"
+            app:imageIds="@array/record_mic_icons" />
+        <com.laifeng.sopcastdemo.ui.MultiToggleImageButton
+            android:id="@+id/camera_flash_button"
+            style="@style/NiceOption"
+            app:imageIds="@array/camera_flashmode_icons" />
+        <com.laifeng.sopcastdemo.ui.MultiToggleImageButton
+            android:id="@+id/camera_switch_button"
+            style="@style/NiceOption"
+            app:imageIds="@array/camera_id_icons" />
+        <com.laifeng.sopcastdemo.ui.MultiToggleImageButton
+            android:id="@+id/camera_focus_button"
+            style="@style/NiceOption"
+            app:imageIds="@array/camera_focus_icons" />
+        <com.laifeng.sopcastdemo.ui.MultiToggleImageButton
+            android:id="@+id/camera_render_button"
+            style="@style/NiceOption"
+            app:imageIds="@array/camera_render_icons" />
+    </com.laifeng.sopcastdemo.ui.TopRightWeightedLayout>
+
+    <LinearLayout
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        android:background="#4d000000"
+        android:gravity="center"
+        android:layout_alignParentRight="true">
+
+        <ImageButton
+            android:id="@+id/btnRecord"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@mipmap/ic_record_start" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressConnecting"
+        style="?android:progressBarStyleSmall"
+        android:layout_width="30dip"
+        android:layout_height="30dip"
+        android:layout_centerInParent="true"
+        android:visibility="gone"/>
+
+
+</RelativeLayout>

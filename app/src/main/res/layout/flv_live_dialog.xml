@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/host"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Host"
+            android:textSize="14dp"
+            android:text="v.laifeng.com/join_demo"/>
+
+        <EditText
+            android:id="@+id/appId"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="AppId"
+            android:textSize="14dp"
+            android:text="801"/>
+
+        <EditText
+            android:id="@+id/alias"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Alias"
+            android:textSize="14dp"
+            android:text="fengjun"/>
+
+        <Switch
+            android:text="高级设置"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/switchSetting" />
+
+        <Button
+            android:id="@+id/normalLive"
+            android:layout_margin="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="正常直播"/>
+
+        <LinearLayout
+            android:id="@+id/moreSettings"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/createStream"
+                android:layout_margin="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="创建流"/>
+
+            <EditText
+                android:id="@+id/streamId"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14dp"
+                android:hint="StreamId"/>
+
+            <Button
+                android:id="@+id/schedule"
+                android:layout_margin="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="请求调度"/>
+
+            <EditText
+                android:id="@+id/ip"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Ip"
+                android:textSize="14dp"
+                android:text="101.227.10.50"/>
+
+            <EditText
+                android:id="@+id/port"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="port"
+                android:textSize="14dp"
+                android:text="80"/>
+
+            <Button
+                android:id="@+id/debugLive"
+                android:layout_margin="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="调试直播"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
