@@ -1,5 +1,6 @@
 ## SopCastComponentSDK
-Welcome to SopCastComponentSDK, a good component for Android SopCast.
+Welcome to SopCastComponentSDK, a good component for Android SopCast. This is a pure
+java language project, and doesn't depend on any other library.
 ![sopcast](sopcast.jpeg)
 
 ### Features
@@ -18,6 +19,7 @@ Welcome to SopCastComponentSDK, a good component for Android SopCast.
 >* Support camera switching
 >* Support flv package
 >* Support camera auto focus and touch focus mode
+>* Support camera zoom
 >* Support torch operation
 >* Support audio aec
 
@@ -33,7 +35,20 @@ At first you must get the needed permissions, the needed permissions can be seen
 sourcecode.
 
 **Attention:** After Android 6.0 you must request to get some permissions.
-#### 2. Camera Configuration
+
+#### 2. Window size
+The 'CameraLivingView' support EXACTLY size mode, and you also can use the "aspect_ratio" in xml to
+define a fixed length-width ratio size view.
+
+```
+<com.laifeng.sopcastsdk.ui.CameraLivingView
+    android:id="@+id/liveView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:aspect_ratio="0.8"/>
+```
+
+#### 3. Camera Configuration
 
 ```
 CameraConfiguration.Builder cameraBuilder = new CameraConfiguration.Builder();
@@ -46,8 +61,9 @@ mLFLiveView.setCameraConfiguration(cameraConfiguration);
 You can add these code in activity onCreate method, and the camera will be open as you set.
 If you use this view in a landscape activity, you must set the orientation to landscape.
 You can set a preview size to this view, the camera will find the nearest size and use it.
-If the preview ratio doesn't fit the view ratio, it will choose the center part of the preview and display it.
-If you use the default setting, you needn't to set it again.
+If the preview length-width ratio doesn't fit the view length-width ratio, it will choose
+the center part of the preview and display it. If you use the default setting, you needn't
+to set it again.
 
 The default settings:
 ```
@@ -59,7 +75,7 @@ public static final Orientation DEFAULT_ORIENTATION = Orientation.PORTRAIT;
 public static final FocusMode DEFAULT_FOCUSMODE = FocusMode.AUTO;
 ```
 
-#### 3. Video Configuration
+#### 4. Video Configuration
 ```
 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
 videoBuilder.setSize(640, 360).setMime(DEFAULT_MIME)
@@ -68,11 +84,11 @@ mVideoConfiguration = videoBuilder.build();
 mLFLiveView.setVideoConfiguration(mVideoConfiguration);
 ```
 You can add these code before living. You can set the video output size by 'setSize()'
-method, if the ratio doesn't fit the view ratio, it will choose the center part of the view
-and output it. You can set the min and max bps before living, at first it will use the
-max bps as the current bps. The mime will be set to the video mediacodec, so you need to set
-a correct mime. The ifi will be set to the video mediacodec too. If you use the default setting,
-you needn't to set it again.
+method, if the length-width ratio doesn't fit the view length-width ratio, it will choose
+the center part of the view and output it. You can set the min and max bps before living,
+at first it will use the max bps as the current bps. The mime will be set to the video
+mediacodec, so you need to set a correct mime. The ifi will be set to the video mediacodec
+too. If you use the default setting, you needn't to set it again.
 
 The default settings:
 ```
@@ -85,7 +101,7 @@ public static final int DEFAULT_IFI = 2;
 public static final String DEFAULT_MIME = "video/avc";
 ```
 
-#### 4. Audio Configuration
+#### 5. Audio Configuration
 ```
 AudioConfiguration.Builder audioBuilder = new AudioConfiguration.Builder();
 audioBuilder.setAec(true).setBps(32, 64).setFrequency(48000).setMime(DEFAULT_MIME).
@@ -112,7 +128,7 @@ public static final int DEFAULT_CHANNEL_COUNT = 1;
 public static final boolean DEFAULT_AEC = false;
 ```
 
-#### 5. Packer
+#### 6. Packer
 ```
 RtmpPacker packer = new RtmpPacker();
 packer.initAudioParams(AudioConfiguration.DEFAULT_FREQUENCY, 16, false);
@@ -122,7 +138,7 @@ We provide flv packer and rtmp packer in this component, you also can define you
 The packer must implement the 'Packer' interface. The packer can pack up the video and audio data,
 the packed data will be send to the sender.
 
-#### 6. Sender
+#### 7. Sender
 ```
 String url = "rtmp://[host]:1935/[app]/[stream]";
 mRtmpSender = new RtmpSender(url);
@@ -134,12 +150,12 @@ mLFLiveView.setSender(mRtmpSender);
 We provide local and rtmp sender in this component, you also can define your packer too.
 The sender must implement the 'Sender' interface.
 
-#### 7. Effect
+#### 8. Effect
 We provide Null and Gray video effect, you also can define your video effect.
 ```
 mLFLiveView.setEffect(mGrayEffect);
 ```
-#### 8. Watermark
+#### 9. Watermark
 It's easy to set a watermark to the video, and the preview and the output video will
 display the watermark. Please set the watermark length-width ratio equals the
 bitmap length-width ratio.
@@ -149,7 +165,7 @@ Watermark watermark = new Watermark(watermarkImg, 50, 25, WatermarkPosition.WATE
 mLFLiveView.setWatermark(watermark);
 ```
 
-#### 9. CameraListener
+#### 10. CameraListener
 You can set a camera listener to this view, then you can get the camera feedback.
 ```
 //设置预览监听
@@ -171,7 +187,7 @@ mLFLiveView.setCameraOpenListener(new CameraListener() {
 });
 ```
 
-#### 10. LivingStartListener
+#### 11. LivingStartListener
 You can set a living start listener to this view, then you can get the starting feedback.
 ```
 mLFLiveView.setLivingStartListener(new CameraLivingView.LivingStartListener() {
