@@ -32,8 +32,23 @@ java language project, and doesn't depend on any other library.
 
 ### How to Use
 #### 1. Permissions
-At first you must get the needed permissions, the needed permissions can be seen in the
-sourcecode.
+At first you must get the needed permissions, the needed permissions:
+
+```
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.FLASHLIGHT" />
+<uses-permission android:name="android.permission.CAMERA" />
+
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.RECORD_AUDIO"/>
+<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+<uses-permission android:name="android.permission.WAKE_LOCK" />
+<uses-permission android:name="android.permission.INTERNET" />
+
+<uses-feature android:name="android.hardware.camera" />
+<uses-feature android:name="android.hardware.autofocus" />
+```
 
 **Attention:** After Android 6.0 you must request to get some permissions.
 
