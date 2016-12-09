@@ -1,7 +1,5 @@
 package com.laifeng.sopcastsdk.stream.sender.rtmp.io;
 
-import android.util.Log;
-
 import com.laifeng.sopcastsdk.entity.Frame;
 import com.laifeng.sopcastsdk.stream.sender.rtmp.packets.Command;
 import com.laifeng.sopcastsdk.stream.sender.rtmp.packets.Chunk;
@@ -9,7 +7,6 @@ import com.laifeng.sopcastsdk.stream.sender.sendqueue.ISendQueue;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * RTMPConnection's write thread
