@@ -1,6 +1,7 @@
 ## SopCastComponentSDK
 Welcome to SopCastComponentSDK, a good component for Android SopCast. This is a pure
-java language project, and doesn't depend on any other library.
+java language project, and doesn't depend on any other library. If you thank this is a good component,
+please give us a star.
 
 ![sopcast](sopcast.jpeg)
 
@@ -31,7 +32,13 @@ java language project, and doesn't depend on any other library.
 >* Device must have a camera
 
 ### How to Use
-#### 1. Permissions
+
+#### 1. Download
+It's very easy to use this component, Gradle:
+```
+compile 'com.laifeng:sopcast-sdk:1.0.0'
+```
+#### 2. Permissions
 At first you must get the needed permissions, the needed permissions:
 
 ```
@@ -50,9 +57,10 @@ At first you must get the needed permissions, the needed permissions:
 <uses-feature android:name="android.hardware.autofocus" />
 ```
 
-**Attention:** After Android 6.0 you must request to get some permissions.
+**Attention:** After Android 6.0 you must request to get some permissions. If you want to use this
+component quickly, you can set your project 'targetSdkVersion' below 23.
 
-#### 2. Window size
+#### 3. Window size
 The 'CameraLivingView' support EXACTLY size mode, and you also can use the "aspect_ratio" in xml to
 define a fixed length-width ratio size view.
 
@@ -64,7 +72,7 @@ define a fixed length-width ratio size view.
     app:aspect_ratio="0.8"/>
 ```
 
-#### 3. Camera Configuration
+#### 4. Camera Configuration
 
 ```
 CameraConfiguration.Builder cameraBuilder = new CameraConfiguration.Builder();
@@ -91,7 +99,7 @@ public static final Orientation DEFAULT_ORIENTATION = Orientation.PORTRAIT;
 public static final FocusMode DEFAULT_FOCUSMODE = FocusMode.AUTO;
 ```
 
-#### 4. Video Configuration
+#### 5. Video Configuration
 ```
 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
 videoBuilder.setSize(640, 360).setMime(DEFAULT_MIME)
@@ -117,7 +125,7 @@ public static final int DEFAULT_IFI = 2;
 public static final String DEFAULT_MIME = "video/avc";
 ```
 
-#### 5. Audio Configuration
+#### 6. Audio Configuration
 ```
 AudioConfiguration.Builder audioBuilder = new AudioConfiguration.Builder();
 audioBuilder.setAec(true).setBps(32, 64).setFrequency(48000).setMime(DEFAULT_MIME).
@@ -144,7 +152,7 @@ public static final int DEFAULT_CHANNEL_COUNT = 1;
 public static final boolean DEFAULT_AEC = false;
 ```
 
-#### 6. Packer
+#### 7. Packer
 ```
 RtmpPacker packer = new RtmpPacker();
 packer.initAudioParams(AudioConfiguration.DEFAULT_FREQUENCY, 16, false);
@@ -154,7 +162,7 @@ We provide flv packer and rtmp packer in this component, you also can define you
 The packer must implement the 'Packer' interface. The packer can pack up the video and audio data,
 the packed data will be send to the sender.
 
-#### 7. Sender
+#### 8. Sender
 ```
 String url = "rtmp://[host]:1935/[app]/[stream]";
 mRtmpSender = new RtmpSender(url);
@@ -166,12 +174,12 @@ mLFLiveView.setSender(mRtmpSender);
 We provide local and rtmp sender in this component, you also can define your packer too.
 The sender must implement the 'Sender' interface.
 
-#### 8. Effect
+#### 9. Effect
 We provide Null and Gray video effect, you also can define your video effect.
 ```
 mLFLiveView.setEffect(mGrayEffect);
 ```
-#### 9. Watermark
+#### 10. Watermark
 It's easy to set a watermark to the video, and the preview and the output video will
 display the watermark. Please set the watermark length-width ratio equals the
 bitmap length-width ratio.
@@ -181,7 +189,7 @@ Watermark watermark = new Watermark(watermarkImg, 50, 25, WatermarkPosition.WATE
 mLFLiveView.setWatermark(watermark);
 ```
 
-#### 10. CameraListener
+#### 11. CameraListener
 You can set a camera listener to this view, then you can get the camera feedback.
 ```
 //设置预览监听
@@ -203,7 +211,7 @@ mLFLiveView.setCameraOpenListener(new CameraListener() {
 });
 ```
 
-#### 11. LivingStartListener
+#### 12. LivingStartListener
 You can set a living start listener to this view, then you can get the starting feedback.
 ```
 mLFLiveView.setLivingStartListener(new CameraLivingView.LivingStartListener() {
