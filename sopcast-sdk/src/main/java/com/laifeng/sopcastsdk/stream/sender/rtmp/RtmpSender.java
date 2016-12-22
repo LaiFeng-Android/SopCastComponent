@@ -96,8 +96,8 @@ public class RtmpSender implements Sender, SendQueueListener {
     }
 
     private synchronized void connectNotInUi() {
-        rtmpConnection.connect(mRtmpUrl);
         rtmpConnection.setConnectListener(listener);
+        rtmpConnection.connect(mRtmpUrl);
     }
 
 

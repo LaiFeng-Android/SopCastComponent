@@ -20,10 +20,12 @@ public class WriteThread extends Thread {
     private SessionInfo sessionInfo;
     private OnWriteListener listener;
     private ISendQueue mSendQueue;
+    private volatile boolean startFlag;
 
     public WriteThread(OutputStream out, SessionInfo sessionInfo) {
         this.out = out;
         this.sessionInfo = sessionInfo;
+        this.startFlag = true;
     }
 
     public void setWriteListener(OnWriteListener listener) {
@@ -32,7 +34,7 @@ public class WriteThread extends Thread {
 
     @Override
     public void run() {
-        while (!Thread.interrupted()) {
+        while (startFlag) {
             try {
                 Frame<Chunk> frame = mSendQueue.takeFrame();
                 if(frame != null) {
@@ -45,7 +47,7 @@ public class WriteThread extends Thread {
                     out.flush();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                startFlag = false;
                 if(listener != null) {
                     listener.onDisconnect();
                 }
@@ -59,6 +61,7 @@ public class WriteThread extends Thread {
 
     public void shutdown() {
         listener = null;
+        startFlag = false;
         this.interrupt();
     }
 }

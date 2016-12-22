@@ -20,10 +20,12 @@ public class ReadThread extends Thread {
     private RtmpDecoder rtmpDecoder;
     private InputStream in;
     private OnReadListener listener;
+    private volatile boolean startFlag;
 
     public ReadThread(InputStream in, SessionInfo sessionInfo) {
         this.in = in;
         this.rtmpDecoder = new RtmpDecoder(sessionInfo);
+        startFlag = true;
     }
 
     public void setOnReadListener(OnReadListener listener) {
@@ -32,21 +34,19 @@ public class ReadThread extends Thread {
 
     @Override
     public void run() {
-        while (!Thread.interrupted()) {
+        while (startFlag) {
             try {
                 Chunk chunk = rtmpDecoder.readPacket(in);
                 if(chunk != null && listener != null) {
                     listener.onChunkRead(chunk);
                 }
             } catch (EOFException e) {
-                e.printStackTrace();
-                this.interrupt();
+                startFlag = false;
                 if(listener != null) {
                     listener.onStreamEnd();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
-                this.interrupt();
+                startFlag = false;
                 if(listener != null) {
                     listener.onDisconnect();
                 }
@@ -56,6 +56,7 @@ public class ReadThread extends Thread {
 
     public void shutdown() {
         listener = null;
+        startFlag = false;
         this.interrupt();
     }
 

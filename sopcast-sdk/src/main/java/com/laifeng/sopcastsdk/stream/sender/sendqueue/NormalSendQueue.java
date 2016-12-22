@@ -98,7 +98,7 @@ public class NormalSendQueue implements ISendQueue {
             mOutFrameCount.getAndIncrement();
             mTotalFrameCount.getAndDecrement();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            //do nothing
         }
         return frame;
     }
