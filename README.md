@@ -36,7 +36,7 @@ please give us a star.
 #### 1. Download
 It's very easy to use this component, Gradle:
 ```
-compile 'com.laifeng:sopcast-sdk:1.0.0'
+compile 'com.laifeng:sopcast-sdk:1.0.1'
 ```
 #### 2. Permissions
 At first you must get the needed permissions, the needed permissions:
