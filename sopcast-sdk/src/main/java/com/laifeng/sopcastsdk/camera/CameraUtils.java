@@ -30,11 +30,6 @@ import java.util.List;
 @TargetApi(14)
 public class CameraUtils {
 
-    private static final int CAPTURE_WIDTH_MIN_V1 = 1280;
-    private static final int CAPTURE_HEIGHT_MIN_V1 = 720;
-    private static final int CAPTURE_WIDTH_MIN_V2 = 640;
-    private static final int CAPTURE_HEIGHT_MIN_V2 = 360;
-
     public static List<CameraData> getAllCamerasData(boolean isBackFirst) {
         ArrayList<CameraData> cameraDatas = new ArrayList<>();
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
@@ -97,19 +92,30 @@ public class CameraUtils {
             e.printStackTrace();
         }
 
-        List<int[]> supportedPreviewFpsRange = parameters.getSupportedPreviewFpsRange();
-        for (int[] range:supportedPreviewFpsRange) {
-            if(range.length == 2 && range[0] == fps*1000 && range[1] == fps*1000) {
-                //设置预览帧数
-                try {
-                    parameters.setPreviewFpsRange(fps*1000, fps*1000);
-                    camera.setParameters(parameters);
-                } catch (Exception e) {
-                    e.printStackTrace();
+        int[] range = adaptPreviewFps(fps, parameters.getSupportedPreviewFpsRange());
+
+        try {
+            parameters.setPreviewFpsRange(range[0], range[1]);
+            camera.setParameters(parameters);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static int[] adaptPreviewFps(int expectedFps, List<int[]> fpsRanges) {
+        expectedFps *= 1000;
+        int[] closestRange = fpsRanges.get(0);
+        int measure = Math.abs(closestRange[0] - expectedFps) + Math.abs(closestRange[1] - expectedFps);
+        for (int[] range : fpsRanges) {
+            if (range[0] <= expectedFps && range[1] >= expectedFps) {
+                int curMeasure = Math.abs(range[0] - expectedFps) + Math.abs(range[1] - expectedFps);
+                if (curMeasure < measure) {
+                    closestRange = range;
+                    measure = curMeasure;
                 }
-                break;
             }
         }
+        return closestRange;
     }
 
     public static void setPreviewSize(Camera camera, CameraData cameraData, int width, int height,
@@ -196,47 +202,22 @@ public class CameraUtils {
 
     public static Camera.Size getOptimalPreviewSize(Camera camera, int width, int height) {
         Camera.Size optimalSize = null;
-        double minDiff = Double.MAX_VALUE;
+        double minHeightDiff = Double.MAX_VALUE;
+        double minWidthDiff = Double.MAX_VALUE;
         List<Camera.Size> sizes = camera.getParameters().getSupportedPreviewSizes();
         if (sizes == null) return null;
-        //寻找和给出的宽高相等的参数
+        //找到宽度差距最小的
         for(Camera.Size size:sizes){
-            if(size.width == width && size.height == height) {
-                optimalSize = size;
+            if (Math.abs(size.width - width) < minWidthDiff) {
+                minWidthDiff = Math.abs(size.width - width);
             }
         }
-        //寻找最接近且大于给定宽高的
-        if(optimalSize == null) {
-            for(Camera.Size size:sizes){
-                if(size.width >= width && size.height >= height ) {
-                    if (Math.abs(size.height - height) < minDiff) {
-                        optimalSize = size;
-                        minDiff = Math.abs(size.height - height);
-                    }
-                }
-            }
-        }
-        //选择一个宽高大于1280*720且高度最接近720的
-        if(optimalSize == null) {
-            minDiff = Double.MAX_VALUE;
-            for(Camera.Size size:sizes){
-                if(size.width >= CAPTURE_WIDTH_MIN_V1 && size.height >= CAPTURE_HEIGHT_MIN_V1) {
-                    if (Math.abs(size.height - height) < minDiff) {
-                        optimalSize = size;
-                        minDiff = Math.abs(size.height - height);
-                    }
-                }
-            }
-        }
-        //如果上面条件都不满足，那么选择一个宽高大于640*360且高度最接近360的
-        if(optimalSize == null) {
-            minDiff = Double.MAX_VALUE;
-            for(Camera.Size size:sizes){
-                if(size.width >= CAPTURE_WIDTH_MIN_V2 && size.height >= CAPTURE_HEIGHT_MIN_V2) {
-                    if (Math.abs(size.height - height) < minDiff) {
-                        optimalSize = size;
-                        minDiff = Math.abs(size.height - height);
-                    }
+        //在宽度差距最小的里面，找到高度差距最小的
+        for(Camera.Size size:sizes){
+            if(Math.abs(size.width - width) == minWidthDiff) {
+                if(Math.abs(size.height - height) < minHeightDiff) {
+                    optimalSize = size;
+                    minHeightDiff = Math.abs(size.height - height);
                 }
             }
         }
