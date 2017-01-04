@@ -9,6 +9,8 @@ import android.text.TextUtils;
 
 import com.laifeng.sopcastsdk.camera.CameraData;
 import com.laifeng.sopcastsdk.camera.CameraHolder;
+import com.laifeng.sopcastsdk.constant.SopCastConstant;
+import com.laifeng.sopcastsdk.utils.SopCastLog;
 import com.laifeng.sopcastsdk.video.GLSLFileUtils;
 import com.laifeng.sopcastsdk.video.GlUtil;
 
@@ -68,7 +70,9 @@ public abstract class Effect {
 
     private void loadShaderAndParams(String vertex, String fragment) {
         if(TextUtils.isEmpty(vertex) || TextUtils.isEmpty(fragment)) {
-            throw new RuntimeException("Have not set the shader");
+            vertex = SopCastConstant.SHARDE_NULL_VERTEX;
+            fragment = SopCastConstant.SHARDE_NULL_FRAGMENT;
+            SopCastLog.e(SopCastConstant.TAG, "Couldn't load the shader, so use the null shader!");
         }
         GlUtil.checkGlError("initSH_S");
         mProgram = GlUtil.createProgram(vertex, fragment);
