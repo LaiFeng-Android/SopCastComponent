@@ -36,9 +36,9 @@
 ### 如何使用
 
 #### 1. 下载
-阿里内网的话，使用起来非常方便, Gradle:
+使用起来非常方便, Gradle:
 ```
-compile('com.youku.laifeng:LFLiveKitAndroid:1.0.0-SNAPSHOT@aar')
+compile 'com.laifeng:sopcast-sdk:1.0.2'
 ```
 #### 2. 权限
 在使用前需要添加相应的权限:
