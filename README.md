@@ -1,5 +1,7 @@
 ## SopCastComponentSDK
 
+[English Document](https://github.com/LaiFeng-Android/SopCastComponent/blob/master/document/en/README.md)
+
 欢迎关注来疯手机安卓直播开源项目，这是一个由纯java编写的项目，但是性能方面依然不错。整个项目完成了采集、
 视音频处理、编码、数据发送前处理、数据发送的功能。整个项目支持flv封包，rtmp上传，当然也向外面提供了封包和上传的相关接口。
 整个项目是我们来疯安卓团队的努力结果，但是可能某些地方依然会有一些不足之处，欢迎您提出宝贵的意见和建议。
