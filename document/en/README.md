@@ -1,45 +1,45 @@
 ## SopCastComponentSDK
+Welcome to SopCastComponentSDK, a good component for Android SopCast. This is a pure
+java language project, and doesn't depend on any other library. If you thank this is a good component,
+please give us a star.
 
-欢迎关注来疯手机安卓直播开源项目，这是一个由纯java编写的项目，但是性能方面依然不错。整个项目完成了采集、
-视音频处理、编码、数据发送前处理、数据发送的功能。整个项目支持flv封包，rtmp上传，当然也向外面提供了封包和上传的相关接口。
-整个项目是我们来疯安卓团队的努力结果，但是可能某些地方依然会有一些不足之处，欢迎您提出宝贵的意见和建议。
+![sopcast](sopcast.jpeg)
 
-![sopcast](https://github.com/LaiFeng-Android/SopCastComponent/blob/master/sopcast.jpeg)
+### Features
+>* Support Hardware Encoding
+>* Drop frames on bad network
+>* Dynamic switching rate
+>* Camera configuration
+>* Audio configuration
+>* Video Configuration
+>* Support multiple window size
+>* Support video effect With GPU
+>* Support audio muting
+>* Support rtmp transporting
+>* Support watermark
+>* Support screen recording
+>* Support camera switching
+>* Support flv package
+>* Support camera auto focus and touch focus mode
+>* Support camera zoom
+>* Support torch operation
+>* Support audio aec
 
-### 支持功能
->* 硬编码
->* 弱网络环境处理
->* 动态码率调整
->* 摄像头参数设置
->* 音频参数设置
->* 视频参数设置
->* 支持不同窗口尺寸
->* 支持基于Gpu的视频特处理
->* 支持静音
->* 支持rtmp上传
->* 支持水印
->* 支持截屏录制
->* 支持摄像头切换
->* 支持flv封包
->* 支持摄像头自动对焦和手动对焦切换
->* 支持摄像头缩放
->* 支持闪光灯操作
->* 支持音频回声消除
+### Requirements
 
-### 要求
+>* Camera preview and operate: Android sdk version 14+
+>* Camera living: Android sdk version 18+
+>* Device must have a camera
 
->* 摄像头相关操作: Android sdk 版本 14+
->* 视频直播: Android sdk 版本 18+
+### How to Use
 
-### 如何使用
-
-#### 1. 下载
-阿里内网的话，使用起来非常方便, Gradle:
+#### 1. Download
+It's very easy to use this component, Gradle:
 ```
-compile('com.youku.laifeng:LFLiveKitAndroid:1.0.0-SNAPSHOT@aar')
+compile 'com.laifeng:sopcast-sdk:1.0.2'
 ```
-#### 2. 权限
-在使用前需要添加相应的权限:
+#### 2. Permissions
+At first you must get the needed permissions, the needed permissions:
 
 ```
 <uses-permission android:name="android.permission.CAMERA" />
@@ -57,12 +57,12 @@ compile('com.youku.laifeng:LFLiveKitAndroid:1.0.0-SNAPSHOT@aar')
 <uses-feature android:name="android.hardware.autofocus" />
 ```
 
-**注意：** 在Android 6.0以后很多权限需要动态申请. 如果你想快速使用，可以将项目的targetSdkVersion设置在23一下。
+**Attention:** After Android 6.0 you must request to get some permissions. If you want to use this
+component quickly, you can set your project 'targetSdkVersion' below 23.
 
-#### 3. 预览窗口大小
-CameraLivingView支持View固定大小（EXACTLY）的模式，当然也可以在xml中定义窗口的长宽比，
-这样的话一个参数要设为固定大小，另外一个参数设为"wrap_content"。
-参考代码如下：
+#### 3. Window size
+The 'CameraLivingView' support EXACTLY size mode, and you also can use the "aspect_ratio" in xml to
+define a fixed length-width ratio size view.
 
 ```
 <com.laifeng.sopcastsdk.ui.CameraLivingView
@@ -72,7 +72,7 @@ CameraLivingView支持View固定大小（EXACTLY）的模式，当然也可以�
     app:aspect_ratio="0.8"/>
 ```
 
-#### 4. 摄像头参数设置
+#### 4. Camera Configuration
 
 ```
 CameraConfiguration.Builder cameraBuilder = new CameraConfiguration.Builder();
@@ -82,11 +82,14 @@ cameraBuilder.setOrientation(CameraConfiguration.Orientation.LANDSCAPE)
 CameraConfiguration cameraConfiguration = cameraBuilder.build();
 mLFLiveView.setCameraConfiguration(cameraConfiguration);
 ```
-在Activity的onCreate方法中设置摄像头参数信息，那么摄像头就会按照你的设置进行打开。如果你在横屏界面，需要将摄像头设置为横屏模式。
-你可以传入一个摄像头预览尺寸的大小，内部会找出和这个设置的大小最匹配的尺寸进行使用。如果摄像头预览大小和屏幕显示大小不一致，则会先泽中间部分进行缩放显示。
-如果你使用默认的设置的话，则不需要进行任何设置。
+You can add these code in activity onCreate method, and the camera will be open as you set.
+If you use this view in a landscape activity, you must set the orientation to landscape.
+You can set a preview size to this view, the camera will find the nearest size and use it.
+If the preview length-width ratio doesn't fit the view length-width ratio, it will choose
+the center part of the preview and display it. If you use the default setting, you needn't
+to set it again.
 
-默认设置如下:
+The default settings:
 ```
 public static final int DEFAULT_HEIGHT = 1280;
 public static final int DEFAULT_WIDTH = 720;
@@ -96,7 +99,7 @@ public static final Orientation DEFAULT_ORIENTATION = Orientation.PORTRAIT;
 public static final FocusMode DEFAULT_FOCUSMODE = FocusMode.AUTO;
 ```
 
-#### 5. 视频参数设置
+#### 5. Video Configuration
 ```
 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
 videoBuilder.setSize(640, 360).setMime(DEFAULT_MIME)
@@ -104,11 +107,14 @@ videoBuilder.setSize(640, 360).setMime(DEFAULT_MIME)
 mVideoConfiguration = videoBuilder.build();
 mLFLiveView.setVideoConfiguration(mVideoConfiguration);
 ```
-在直播之前可以进行视频参数设置，可以通过setSize()方法来设置视频输出的尺寸大小，如果设置的尺寸比例不符合预览尺寸比例，则会选择中间区域进行缩放输出。
-在直播之前可以设置视频的最大和最小码率，直播的时候先使用最大码率，后来根据网络环境进行调整，但是码率始终在最大和最小码率之间。mime参数将会设置到硬编
-编码器，请确保mime的正确性，ifi参数也会传递到硬编编码器。如果你使用默认参数，则不需要进行任何设置。
+You can add these code before living. You can set the video output size by 'setSize()'
+method, if the length-width ratio doesn't fit the view length-width ratio, it will choose
+the center part of the view and output it. You can set the min and max bps before living,
+at first it will use the max bps as the current bps. The mime will be set to the video
+mediacodec, so you need to set a correct mime. The ifi will be set to the video mediacodec
+too. If you use the default setting, you needn't to set it again.
 
-默认设置如下：
+The default settings:
 ```
 public static final int DEFAULT_HEIGHT = 640;
 public static final int DEFAULT_WIDTH = 360;
@@ -119,7 +125,7 @@ public static final int DEFAULT_IFI = 2;
 public static final String DEFAULT_MIME = "video/avc";
 ```
 
-#### 6. 音频参数设置
+#### 6. Audio Configuration
 ```
 AudioConfiguration.Builder audioBuilder = new AudioConfiguration.Builder();
 audioBuilder.setAec(true).setBps(32, 64).setFrequency(48000).setMime(DEFAULT_MIME).
@@ -128,10 +134,12 @@ audioBuilder.setAec(true).setBps(32, 64).setFrequency(48000).setMime(DEFAULT_MIM
 AudioConfiguration audioConfiguration = audioBuilder.build();
 mLFLiveView.setAudioConfiguration(audioConfiguration);
 ```
-通过'setAec(true)'方法可以打开回声消除功能，回声消除功能仅仅在(8000, 16000, 48000)采样率并且单声道下支持。
-mime参数将会设置到硬编编码器，请使用正确的mime参数。如果使用默认参数，则不需要进行任何设置。
+You can open the echo cancellation module by the method 'setAec(true)',  echo cancellation module
+just work in (8000, 16000, 48000) frequency and one channel count. The mime will be set to the
+video mediacodec, so you need to set a correct one. If you use the default setting, you needn't
+to set it again.
 
-默认设置如下：
+The default settings:
 ```
 public static final int DEFAULT_FREQUENCY = 44100;
 public static final int DEFAULT_MAX_BPS = 64;
@@ -144,15 +152,17 @@ public static final int DEFAULT_CHANNEL_COUNT = 1;
 public static final boolean DEFAULT_AEC = false;
 ```
 
-#### 7. 设置打包器
+#### 7. Packer
 ```
 RtmpPacker packer = new RtmpPacker();
 packer.initAudioParams(AudioConfiguration.DEFAULT_FREQUENCY, 16, false);
 mLFLiveView.setPacker(packer);
 ```
-我们内部提供了flv和rtmp的打包器，你也可以定义自己的打包器。打包器负责将硬编后的视音频进行打包，然后传递给发送者进行发送。
+We provide flv packer and rtmp packer in this component, you also can define your packer too.
+The packer must implement the 'Packer' interface. The packer can pack up the video and audio data,
+the packed data will be send to the sender.
 
-#### 8. 设置发送器
+#### 8. Sender
 ```
 String url = "rtmp://[host]:1935/[app]/[stream]";
 mRtmpSender = new RtmpSender(url);
@@ -161,16 +171,18 @@ mRtmpSender.setAudioParams(AudioConfiguration.DEFAULT_FREQUENCY, 16, false);
 mRtmpSender.setSenderListener(mSenderListener);
 mLFLiveView.setSender(mRtmpSender);
 ```
-我们提供了本地和rtmp的发送器，本地发送器就是保持文件到本地，你也可以定义自己的发送器。
+We provide local and rtmp sender in this component, you also can define your packer too.
+The sender must implement the 'Sender' interface.
 
-#### 9. 视频特效
-我们提供了无特效和灰色两种特效，你也可以定义符合自己风格的视频特效。
+#### 9. Effect
+We provide Null and Gray video effect, you also can define your video effect.
 ```
 mLFLiveView.setEffect(mGrayEffect);
 ```
-#### 10. 水印
-在这往视频上添加水印也非常方便，设置水印后预览和输出都会显示相应尺寸的水印。设置水印的大小和位置是居于输出视频的，
-预览界面会根据输出视频的情况等比例显示水印。请设置视频水印的长宽比和水印图片的长宽比一致。
+#### 10. Watermark
+It's easy to set a watermark to the video, and the preview and the output video will
+display the watermark. Please set the watermark length-width ratio equals the
+bitmap length-width ratio.
 ```
 Bitmap watermarkImg = BitmapFactory.decodeResource(getResources(), R.mipmap.watermark);
 Watermark watermark = new Watermark(watermarkImg, 50, 25, WatermarkPosition.WATERMARK_ORIENTATION_BOTTOM_RIGHT, 8, 8);
@@ -178,7 +190,7 @@ mLFLiveView.setWatermark(watermark);
 ```
 
 #### 11. CameraListener
-设置一个摄像头监听器，这样的话会受到摄像头的回调。
+You can set a camera listener to this view, then you can get the camera feedback.
 ```
 //设置预览监听
 mLFLiveView.setCameraOpenListener(new CameraListener() {
@@ -200,7 +212,7 @@ mLFLiveView.setCameraOpenListener(new CameraListener() {
 ```
 
 #### 12. LivingStartListener
-设置直播开始的监听器，这样的话会收到开播的相关监听。
+You can set a living start listener to this view, then you can get the starting feedback.
 ```
 mLFLiveView.setLivingStartListener(new CameraLivingView.LivingStartListener() {
     @Override
