@@ -3,7 +3,7 @@ Welcome to SopCastComponentSDK, a good component for Android SopCast. This is a 
 java language project, and doesn't depend on any other library. If you thank this is a good component,
 please give us a star.
 
-![sopcast](sopcast.jpeg)
+![sopcast](../../sopcast.jpeg)
 
 ### Features
 >* Support Hardware Encoding

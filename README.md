@@ -4,7 +4,7 @@
 视音频处理、编码、数据发送前处理、数据发送的功能。整个项目支持flv封包，rtmp上传，当然也向外面提供了封包和上传的相关接口。
 整个项目是我们来疯安卓团队的努力结果，但是可能某些地方依然会有一些不足之处，欢迎您提出宝贵的意见和建议。
 
-![sopcast](https://github.com/LaiFeng-Android/SopCastComponent/blob/master/sopcast.jpeg)
+![sopcast](sopcast.jpg)
 
 ### 支持功能
 >* 硬编码
