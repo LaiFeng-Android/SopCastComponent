@@ -1,5 +1,7 @@
 ## SopCastComponentSDK
 
+![license-bsd](https://img.shields.io/badge/license-BSD-red.svg)&nbsp;
+
 [English Document](https://github.com/LaiFeng-Android/SopCastComponent/blob/master/document/en/README.md)
 
 欢迎关注来疯手机安卓直播开源项目，这是一个由纯java编写的项目，但是性能方面依然不错。整个项目完成了采集、
@@ -229,7 +231,8 @@ public static final int AUDIO_ERROR = 6;
 public static final int AUDIO_AEC_ERROR = 7;
 public static final int SDK_VERSION_ERROR = 8;
 ```
-
+## License
+ **SopCastComponent is released under the BSD license. See LICENSE for details.**
 
 
 
