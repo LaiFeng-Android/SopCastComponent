@@ -12,7 +12,7 @@ package com.laifeng.sopcastsdk.configuration;
 public final class VideoConfiguration {
     public static final int DEFAULT_HEIGHT = 640;
     public static final int DEFAULT_WIDTH = 360;
-    public static final int DEFAULT_FPS = 24;
+    public static final int DEFAULT_FPS = 15;
     public static final int DEFAULT_MAX_BPS = 1300;
     public static final int DEFAULT_MIN_BPS = 400;
     public static final int DEFAULT_IFI = 2;

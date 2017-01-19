@@ -36,7 +36,7 @@ please give us a star.
 #### 1. Download
 It's very easy to use this component, Gradle:
 ```
-compile 'com.laifeng:sopcast-sdk:1.0.2'
+compile 'com.laifeng:sopcast-sdk:1.0.4'
 ```
 #### 2. Permissions
 At first you must get the needed permissions, the needed permissions:
@@ -103,7 +103,7 @@ public static final FocusMode DEFAULT_FOCUSMODE = FocusMode.AUTO;
 ```
 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
 videoBuilder.setSize(640, 360).setMime(DEFAULT_MIME)
-        .setFps(24).setBps(300, 800).setIfi(2);
+        .setFps(15).setBps(300, 800).setIfi(2);
 mVideoConfiguration = videoBuilder.build();
 mLFLiveView.setVideoConfiguration(mVideoConfiguration);
 ```
@@ -118,7 +118,7 @@ The default settings:
 ```
 public static final int DEFAULT_HEIGHT = 640;
 public static final int DEFAULT_WIDTH = 360;
-public static final int DEFAULT_FPS = 24;
+public static final int DEFAULT_FPS = 15;
 public static final int DEFAULT_MAX_BPS = 1300;
 public static final int DEFAULT_MIN_BPS = 400;
 public static final int DEFAULT_IFI = 2;

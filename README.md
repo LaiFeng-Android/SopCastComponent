@@ -40,7 +40,7 @@
 #### 1. 下载
 使用起来非常方便, Gradle:
 ```
-compile 'com.laifeng:sopcast-sdk:1.0.3'
+compile 'com.laifeng:sopcast-sdk:1.0.4'
 ```
 #### 2. 权限
 在使用前需要添加相应的权限:
@@ -104,7 +104,7 @@ public static final FocusMode DEFAULT_FOCUSMODE = FocusMode.AUTO;
 ```
 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
 videoBuilder.setSize(640, 360).setMime(DEFAULT_MIME)
-        .setFps(24).setBps(300, 800).setIfi(2);
+        .setFps(15).setBps(300, 800).setIfi(2);
 mVideoConfiguration = videoBuilder.build();
 mLFLiveView.setVideoConfiguration(mVideoConfiguration);
 ```
@@ -116,7 +116,7 @@ mLFLiveView.setVideoConfiguration(mVideoConfiguration);
 ```
 public static final int DEFAULT_HEIGHT = 640;
 public static final int DEFAULT_WIDTH = 360;
-public static final int DEFAULT_FPS = 24;
+public static final int DEFAULT_FPS = 15;
 public static final int DEFAULT_MAX_BPS = 1300;
 public static final int DEFAULT_MIN_BPS = 400;
 public static final int DEFAULT_IFI = 2;
