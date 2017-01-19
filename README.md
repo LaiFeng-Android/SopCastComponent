@@ -38,7 +38,7 @@
 #### 1. 下载
 使用起来非常方便, Gradle:
 ```
-compile 'com.laifeng:sopcast-sdk:1.0.2'
+compile 'com.laifeng:sopcast-sdk:1.0.3'
 ```
 #### 2. 权限
 在使用前需要添加相应的权限:
@@ -86,13 +86,13 @@ mLFLiveView.setCameraConfiguration(cameraConfiguration);
 ```
 在Activity的onCreate方法中设置摄像头参数信息，那么摄像头就会按照你的设置进行打开。如果你在横屏界面，需要将摄像头设置为横屏模式。
 你可以传入一个摄像头预览尺寸的大小，内部会找出和这个设置的大小最匹配的尺寸进行使用。如果摄像头预览大小和屏幕显示大小不一致，则会先泽中间部分进行缩放显示。
-如果你使用默认的设置的话，则不需要进行任何设置。
+如果你使用默认的设置的话，则不需要进行任何设置。**很多手机前置摄像头需要设置fps为15，否则在弱光下会很黑。**
 
 默认设置如下:
 ```
 public static final int DEFAULT_HEIGHT = 1280;
 public static final int DEFAULT_WIDTH = 720;
-public static final int DEFAULT_FPS = 24;
+public static final int DEFAULT_FPS = 15;
 public static final Facing DEFAULT_FACING = Facing.FRONT;
 public static final Orientation DEFAULT_ORIENTATION = Orientation.PORTRAIT;
 public static final FocusMode DEFAULT_FOCUSMODE = FocusMode.AUTO;
@@ -124,13 +124,13 @@ public static final String DEFAULT_MIME = "video/avc";
 #### 6. 音频参数设置
 ```
 AudioConfiguration.Builder audioBuilder = new AudioConfiguration.Builder();
-audioBuilder.setAec(true).setBps(32, 64).setFrequency(48000).setMime(DEFAULT_MIME).
+audioBuilder.setAec(true).setBps(32, 64).setFrequency(16000).setMime(DEFAULT_MIME).
         setAacProfile(DEFAULT_AAC_PROFILE).setAdts(DEFAULT_ADTS).
         setChannelCount(1).setEncoding(DEFAULT_AUDIO_ENCODING);
 AudioConfiguration audioConfiguration = audioBuilder.build();
 mLFLiveView.setAudioConfiguration(audioConfiguration);
 ```
-通过'setAec(true)'方法可以打开回声消除功能，回声消除功能仅仅在(8000, 16000, 48000)采样率并且单声道下支持。
+通过'setAec(true)'方法可以打开回声消除功能，回声消除功能仅仅在(8000, 16000)采样率并且单声道下支持。
 mime参数将会设置到硬编编码器，请使用正确的mime参数。如果使用默认参数，则不需要进行任何设置。
 
 默认设置如下：

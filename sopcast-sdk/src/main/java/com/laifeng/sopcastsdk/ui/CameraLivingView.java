@@ -168,8 +168,7 @@ public class CameraLivingView extends CameraView {
     private boolean checkAec() {
         if(mAudioConfiguration.aec) {
             if(mAudioConfiguration.frequency == 8000 ||
-                    mAudioConfiguration.frequency == 16000 ||
-                    mAudioConfiguration.frequency == 48000) {
+                    mAudioConfiguration.frequency == 16000) {
                 if(mAudioConfiguration.channelCount == 1) {
                     return true;
                 }

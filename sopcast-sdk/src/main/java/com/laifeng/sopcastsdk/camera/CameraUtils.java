@@ -65,7 +65,7 @@ public class CameraUtils {
         setPreviewFps(camera, configuration.fps, parameters);
         setPreviewSize(camera, cameraData, cameraWidth, cameraHeight, parameters);
         cameraData.hasLight = supportFlash(camera);
-        setOrientation(cameraData, isLandscape);
+        setOrientation(cameraData, isLandscape, camera);
         setFocusMode(camera, cameraData, isTouchMode);
     }
 
@@ -137,13 +137,12 @@ public class CameraUtils {
         }
     }
 
-    private static void setOrientation(CameraData cameraData, boolean isLandscape) {
+    private static void setOrientation(CameraData cameraData, boolean isLandscape, Camera camera) {
         int orientation = getDisplayOrientation(cameraData.cameraID);
         if(isLandscape) {
-            cameraData.orientation = orientation - 90;
-        } else {
-            cameraData.orientation = orientation;
+            orientation = orientation - 90;
         }
+        camera.setDisplayOrientation(orientation);
     }
 
     private static void setFocusMode(Camera camera, CameraData cameraData, boolean isTouchMode) {

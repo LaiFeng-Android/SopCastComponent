@@ -168,18 +168,6 @@ public abstract class Effect {
             return;
         }
 
-        CameraData cameraData = CameraHolder.instance().getCameraData();
-        if(cameraData != null) {
-            int orientation = cameraData.orientation;
-            float angle = (360 - orientation)%360;
-            if(angle != mAngle) {
-                mAngle = angle;
-                return;
-            }
-        }
-
-        Matrix.setRotateM(mPosMtx, 0, mAngle, 0, 0, 1);
-
         GlUtil.checkGlError("draw_S");
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFboId[0]);
 

@@ -26,16 +26,11 @@ public class AudioProcessor extends Thread {
     private AudioEncoder mAudioEncoder;
     private byte[] mRecordBuffer;
     private int mRecordBufferSize;
-    private AudioConfiguration mAudioConfiguration;
-    private AudioResample mResampler;
 
     public AudioProcessor(AudioRecord audioRecord, AudioConfiguration audioConfiguration) {
         mRecordBufferSize = AudioUtils.getRecordBufferSize(audioConfiguration);
         mRecordBuffer =  new byte[mRecordBufferSize];
         mAudioRecord = audioRecord;
-        mAudioConfiguration = audioConfiguration;
-        mResampler = new AudioResample();
-        mResampler.init();
         mAudioEncoder = new AudioEncoder(audioConfiguration);
         mAudioEncoder.prepareEncoder();
     }
@@ -46,10 +41,6 @@ public class AudioProcessor extends Thread {
 
     public void stopEncode() {
         mStopFlag = true;
-        if(mResampler != null) {
-            mResampler.close();
-            mResampler = null;
-        }
         if(mAudioEncoder != null) {
             mAudioEncoder.stop();
             mAudioEncoder = null;
@@ -75,39 +66,12 @@ public class AudioProcessor extends Thread {
             }
             int readLen = mAudioRecord.read(mRecordBuffer, 0, mRecordBufferSize);
             if (readLen > 0) {
-                if(mAudioConfiguration.aec && mAudioConfiguration.frequency == 48000) {
-                    // need resample
-                    byte[] outBuf = new byte[mRecordBufferSize*3];
-                    ShortBuffer inShortBuff = ByteBuffer.wrap(mRecordBuffer).order(ByteOrder.LITTLE_ENDIAN)
-                            .asShortBuffer();
-                    ShortBuffer outShortBuff = ByteBuffer.wrap(outBuf).order(ByteOrder.LITTLE_ENDIAN)
-                            .asShortBuffer();
-                    if(mMute) {
-                        byte clearM = 0;
-                        Arrays.fill(outBuf, clearM);
-                    } else {
-                        for(int i=0;i<mRecordBufferSize/320;i++) {
-                            short[] inShort = new short[160];
-                            short[] outShort = new short[480];
-                            inShortBuff.get(inShort);
-                            if(mResampler == null) {
-                                return;
-                            }
-                            mResampler.resample16khzTo48khz(inShort, outShort);
-                            outShortBuff.put(outShort);
-                        }
-                    }
-                    if(mAudioEncoder != null) {
-                        mAudioEncoder.offerEncoder(outBuf);
-                    }
-                } else {
-                    if (mMute) {
-                        byte clearM = 0;
-                        Arrays.fill(mRecordBuffer, clearM);
-                    }
-                    if(mAudioEncoder != null) {
-                        mAudioEncoder.offerEncoder(mRecordBuffer);
-                    }
+                if (mMute) {
+                    byte clearM = 0;
+                    Arrays.fill(mRecordBuffer, clearM);
+                }
+                if(mAudioEncoder != null) {
+                    mAudioEncoder.offerEncoder(mRecordBuffer);
                 }
             }
         }

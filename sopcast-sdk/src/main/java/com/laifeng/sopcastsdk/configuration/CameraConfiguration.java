@@ -12,7 +12,7 @@ package com.laifeng.sopcastsdk.configuration;
 public final class CameraConfiguration {
     public static final int DEFAULT_HEIGHT = 1280;
     public static final int DEFAULT_WIDTH = 720;
-    public static final int DEFAULT_FPS = 24;
+    public static final int DEFAULT_FPS = 15;
     public static final Facing DEFAULT_FACING = Facing.FRONT;
     public static final Orientation DEFAULT_ORIENTATION = Orientation.PORTRAIT;
     public static final FocusMode DEFAULT_FOCUSMODE = FocusMode.AUTO;

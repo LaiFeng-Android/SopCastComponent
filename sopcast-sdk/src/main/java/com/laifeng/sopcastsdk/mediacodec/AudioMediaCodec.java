@@ -30,9 +30,6 @@ public class AudioMediaCodec {
         format.setInteger(MediaFormat.KEY_BIT_RATE, configuration.maxBps * 1024);
         format.setInteger(MediaFormat.KEY_SAMPLE_RATE, configuration.frequency);
         int maxInputSize = AudioUtils.getRecordBufferSize(configuration);
-        if(configuration.aec && configuration.frequency == 48000) {
-            maxInputSize = maxInputSize*3;
-        }
         format.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
         format.setInteger(MediaFormat.KEY_CHANNEL_COUNT, configuration.channelCount);
 

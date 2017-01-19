@@ -87,7 +87,7 @@ If you use this view in a landscape activity, you must set the orientation to la
 You can set a preview size to this view, the camera will find the nearest size and use it.
 If the preview length-width ratio doesn't fit the view length-width ratio, it will choose
 the center part of the preview and display it. If you use the default setting, you needn't
-to set it again.
+to set it again. The front camera in some devices must set the fps to be 15, otherwise the preview image will be very duck.
 
 The default settings:
 ```
@@ -128,14 +128,14 @@ public static final String DEFAULT_MIME = "video/avc";
 #### 6. Audio Configuration
 ```
 AudioConfiguration.Builder audioBuilder = new AudioConfiguration.Builder();
-audioBuilder.setAec(true).setBps(32, 64).setFrequency(48000).setMime(DEFAULT_MIME).
+audioBuilder.setAec(true).setBps(32, 64).setFrequency(16000).setMime(DEFAULT_MIME).
         setAacProfile(DEFAULT_AAC_PROFILE).setAdts(DEFAULT_ADTS).
         setChannelCount(1).setEncoding(DEFAULT_AUDIO_ENCODING);
 AudioConfiguration audioConfiguration = audioBuilder.build();
 mLFLiveView.setAudioConfiguration(audioConfiguration);
 ```
 You can open the echo cancellation module by the method 'setAec(true)',  echo cancellation module
-just work in (8000, 16000, 48000) frequency and one channel count. The mime will be set to the
+just work in (8000, 16000) frequency and one channel count. The mime will be set to the
 video mediacodec, so you need to set a correct one. If you use the default setting, you needn't
 to set it again.
 

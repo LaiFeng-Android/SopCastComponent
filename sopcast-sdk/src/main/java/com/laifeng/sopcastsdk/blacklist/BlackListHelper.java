@@ -23,6 +23,7 @@ public class BlackListHelper {
 
     private static final String[] BLACKLISTED_FPS_MODELS = new String[] {
             "OPPO R9",
+            "Nexus 6P",
     };
 
 

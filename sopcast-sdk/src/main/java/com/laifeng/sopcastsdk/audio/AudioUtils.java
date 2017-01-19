@@ -39,28 +39,18 @@ public class AudioUtils {
 
     public static int getRecordBufferSize(AudioConfiguration audioConfiguration) {
         int frequency = audioConfiguration.frequency;
-        if(audioConfiguration.aec && audioConfiguration.frequency == 48000) {
-            frequency = 16000;
-        }
         int audioEncoding = audioConfiguration.encoding;
         int channelConfiguration = AudioFormat.CHANNEL_CONFIGURATION_MONO;
         if(audioConfiguration.channelCount == 2) {
             channelConfiguration = AudioFormat.CHANNEL_CONFIGURATION_STEREO;
         }
         int size = AudioRecord.getMinBufferSize(frequency, channelConfiguration, audioEncoding);
-        if(audioConfiguration.aec && audioConfiguration.frequency == 48000) {
-            return size > 3200 ? 6400 : 3200;
-        } else {
-            return size;
-        }
+        return size;
     }
 
     @TargetApi(18)
     public static AudioRecord getAudioRecord(AudioConfiguration audioConfiguration) {
         int frequency = audioConfiguration.frequency;
-        if(audioConfiguration.aec && audioConfiguration.frequency == 48000) {
-            frequency = 16000;
-        }
         int audioEncoding = audioConfiguration.encoding;
         int channelConfiguration = AudioFormat.CHANNEL_CONFIGURATION_MONO;
         if(audioConfiguration.channelCount == 2) {
