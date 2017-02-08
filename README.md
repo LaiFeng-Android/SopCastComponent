@@ -9,9 +9,13 @@
 整个项目是我们来疯安卓团队的努力结果，但是可能某些地方依然会有一些不足之处，欢迎您提出宝贵的意见和建议。
 
 技术文档（持续更新中）
+
 [Android手机直播（一）总览](http://www.jianshu.com/p/7ebbcc0c5df7)
+
 [Android手机直播（二）摄像机](http://www.jianshu.com/p/39a015f2996e)
+
 [Android手机直播（三）声音采集](http://www.jianshu.com/p/2cb75a71009f)
+
 
 ![sopcast](sopcast.jpg)
 
