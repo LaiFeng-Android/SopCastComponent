@@ -8,16 +8,15 @@
 视音频处理、编码、数据发送前处理、数据发送的功能。整个项目支持flv封包，rtmp上传，当然也向外面提供了封包和上传的相关接口。
 整个项目是我们来疯安卓团队的努力结果，但是可能某些地方依然会有一些不足之处，欢迎您提出宝贵的意见和建议。
 
-技术文档（持续更新中）
+![sopcast](sopcast.jpg)
 
+### 技术文档
 [Android手机直播（一）总览](http://www.jianshu.com/p/7ebbcc0c5df7)
 
 [Android手机直播（二）摄像机](http://www.jianshu.com/p/39a015f2996e)
 
 [Android手机直播（三）声音采集](http://www.jianshu.com/p/2cb75a71009f)
 
-
-![sopcast](sopcast.jpg)
 
 ### 支持功能
 >* 硬编码
