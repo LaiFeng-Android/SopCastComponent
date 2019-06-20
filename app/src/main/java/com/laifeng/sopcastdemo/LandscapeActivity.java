@@ -37,11 +37,8 @@ import static com.laifeng.sopcastsdk.constant.SopCastConstant.TAG;
 
 public class LandscapeActivity extends Activity {
     private CameraLivingView mLFLiveView;
-    private MultiToggleImageButton mMicBtn;
     private MultiToggleImageButton mFlashBtn;
     private MultiToggleImageButton mFaceBtn;
-    private MultiToggleImageButton mBeautyBtn;
-    private MultiToggleImageButton mFocusBtn;
     private GestureDetector mGestureDetector;
     private GrayEffect mGrayEffect;
     private NullEffect mNullEffect;
@@ -73,22 +70,13 @@ public class LandscapeActivity extends Activity {
 
     private void initViews() {
         mLFLiveView = (CameraLivingView) findViewById(R.id.liveView);
-        mMicBtn = (MultiToggleImageButton) findViewById(R.id.record_mic_button);
         mFlashBtn = (MultiToggleImageButton) findViewById(R.id.camera_flash_button);
         mFaceBtn = (MultiToggleImageButton) findViewById(R.id.camera_switch_button);
-        mBeautyBtn = (MultiToggleImageButton) findViewById(R.id.camera_render_button);
-        mFocusBtn = (MultiToggleImageButton) findViewById(R.id.camera_focus_button);
         mRecordBtn = (ImageButton) findViewById(R.id.btnRecord);
         mProgressConnecting = (ProgressBar) findViewById(R.id.progressConnecting);
     }
 
     private void initListeners() {
-        mMicBtn.setOnStateChangeListener(new MultiToggleImageButton.OnStateChangeListener() {
-            @Override
-            public void stateChanged(View view, int state) {
-                mLFLiveView.mute(true);
-            }
-        });
         mFlashBtn.setOnStateChangeListener(new MultiToggleImageButton.OnStateChangeListener() {
             @Override
             public void stateChanged(View view, int state) {
@@ -99,24 +87,6 @@ public class LandscapeActivity extends Activity {
             @Override
             public void stateChanged(View view, int state) {
                 mLFLiveView.switchCamera();
-            }
-        });
-        mBeautyBtn.setOnStateChangeListener(new MultiToggleImageButton.OnStateChangeListener() {
-            @Override
-            public void stateChanged(View view, int state) {
-                if(isGray) {
-                    mLFLiveView.setEffect(mNullEffect);
-                    isGray = false;
-                } else {
-                    mLFLiveView.setEffect(mGrayEffect);
-                    isGray = true;
-                }
-            }
-        });
-        mFocusBtn.setOnStateChangeListener(new MultiToggleImageButton.OnStateChangeListener() {
-            @Override
-            public void stateChanged(View view, int state) {
-                mLFLiveView.switchFocusMode();
             }
         });
         mRecordBtn.setOnClickListener(new View.OnClickListener() {
