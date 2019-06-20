@@ -164,10 +164,10 @@ public class LandscapeActivity extends Activity {
         mVideoConfiguration = videoBuilder.build();
         mLFLiveView.setVideoConfiguration(mVideoConfiguration);
 
-        //设置水印
-        Bitmap watermarkImg = BitmapFactory.decodeResource(getResources(), R.mipmap.watermark);
-        Watermark watermark = new Watermark(watermarkImg, 50, 25, WatermarkPosition.WATERMARK_ORIENTATION_BOTTOM_RIGHT, 8, 8);
-        mLFLiveView.setWatermark(watermark);
+//        //设置水印
+//        Bitmap watermarkImg = BitmapFactory.decodeResource(getResources(), R.mipmap.watermark);
+//        Watermark watermark = new Watermark(watermarkImg, 50, 25, WatermarkPosition.WATERMARK_ORIENTATION_BOTTOM_RIGHT, 8, 8);
+//        mLFLiveView.setWatermark(watermark);
 
         //设置预览监听
         mLFLiveView.setCameraOpenListener(new CameraListener() {
