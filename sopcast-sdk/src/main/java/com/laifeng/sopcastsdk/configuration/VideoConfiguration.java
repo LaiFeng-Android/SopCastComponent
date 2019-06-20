@@ -15,7 +15,7 @@ public final class VideoConfiguration {
     public static final int DEFAULT_FPS = 15;
     public static final int DEFAULT_MAX_BPS = 1300;
     public static final int DEFAULT_MIN_BPS = 400;
-    public static final int DEFAULT_IFI = 2;
+    public static final int DEFAULT_IFI = 1;
     public static final String DEFAULT_MIME = "video/avc";
 
     public final int height;
