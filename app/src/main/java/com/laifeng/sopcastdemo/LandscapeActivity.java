@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+import android.view.WindowManager;
 
 import com.laifeng.sopcastdemo.ui.MultiToggleImageButton;
 import com.laifeng.sopcastsdk.camera.CameraListener;
@@ -49,18 +50,21 @@ public class LandscapeActivity extends Activity {
     private RtmpSender mRtmpSender;
     private VideoConfiguration mVideoConfiguration;
     private int mCurrentBps;
-//    private Dialog mUploadDialog;
+    private Dialog mUploadDialog;
     private EditText mAddressET;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_landscape);
         initEffects();
         initViews();
         initListeners();
         initLiveView();
-        //initRtmpAddressDialog();
+        initRtmpAddressDialog();
     }
 
     private void initEffects() {
@@ -98,57 +102,65 @@ public class LandscapeActivity extends Activity {
                     mRecordBtn.setBackgroundResource(R.mipmap.ic_record_start);
                     mLFLiveView.stop();
                     isRecording = false;
-                }else{
-                    String uploadUrl = "rtmp://10.235.22.18:1935/live/";
-                    mRtmpSender.setAddress(uploadUrl);
-                    mProgressConnecting.setVisibility(View.VISIBLE);
-                    Toast.makeText(LandscapeActivity.this, "start connecting", Toast.LENGTH_SHORT).show();
-                    mRecordBtn.setBackgroundResource(R.mipmap.ic_record_stop);
-                    mRtmpSender.connect();
-                    isRecording = true;
                 }
-//                else {
-//                    mUploadDialog.show();
+//                else{
+//                    String uploadUrl = "rtmp://138.128.223.161:1935/live/";
+//                    mRtmpSender.setAddress(uploadUrl);
+//                    mProgressConnecting.setVisibility(View.VISIBLE);
+//                    Toast.makeText(LandscapeActivity.this, "start connecting", Toast.LENGTH_SHORT).show();
+//                    mRecordBtn.setBackgroundResource(R.mipmap.ic_record_stop);
+//                    mRtmpSender.connect();
+//                    isRecording = true;
 //                }
+                else {
+                    mUploadDialog.show();
+                }
             }
         });
     }
 
-//    private void initRtmpAddressDialog() {
-//        LayoutInflater inflater = getLayoutInflater();
-//        View playView = inflater.inflate(R.layout.address_dialog,(ViewGroup) findViewById(R.id.dialog));
-//        mAddressET = (EditText) playView.findViewById(R.id.address);
-//        Button okBtn = (Button) playView.findViewById(R.id.ok);
-//        Button cancelBtn = (Button) playView.findViewById(R.id.cancel);
-//        AlertDialog.Builder uploadBuilder = new AlertDialog.Builder(this);
-//        uploadBuilder.setTitle("请输入车号ID:");
-//        uploadBuilder.setView(playView);
-//        mUploadDialog = uploadBuilder.create();
-//        okBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                String id = mAddressET.getText().toString();
-//                String uploadUrl = "rtmp://10.235.22.18:1935/live"+id;
-//                if(TextUtils.isEmpty(id)) {
-//                    Toast.makeText(LandscapeActivity.this, "车号ID不为空!", Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
-//                mRtmpSender.setAddress(uploadUrl);
-//                mProgressConnecting.setVisibility(View.VISIBLE);
-//                Toast.makeText(LandscapeActivity.this, "start connecting", Toast.LENGTH_SHORT).show();
-//                mRecordBtn.setBackgroundResource(R.mipmap.ic_record_stop);
-//                mRtmpSender.connect();
-//                isRecording = true;
-//                mUploadDialog.dismiss();
-//            }
-//        });
-//        cancelBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mUploadDialog.dismiss();
-//            }
-//        });
-//    }
+    private void initRtmpAddressDialog() {
+        LayoutInflater inflater = getLayoutInflater();
+        View playView = inflater.inflate(R.layout.address_dialog,(ViewGroup) findViewById(R.id.dialog));
+        mAddressET = (EditText) playView.findViewById(R.id.address);
+        Button okBtn = (Button) playView.findViewById(R.id.ok);
+        Button cancelBtn = (Button) playView.findViewById(R.id.cancel);
+        AlertDialog.Builder uploadBuilder = new AlertDialog.Builder(this);
+        uploadBuilder.setTitle("请输入车号ID:");
+        uploadBuilder.setView(playView);
+        mUploadDialog = uploadBuilder.create();
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String id = mAddressET.getText().toString();
+                if(TextUtils.isEmpty(id)) {
+                    Toast.makeText(LandscapeActivity.this, "车号ID不为空!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String uploadUrl;
+                String zero = "0";
+                if(id.compareTo(zero) == 0){
+                    uploadUrl = "rtmp://138.128.223.161:1935/live/";
+                }else{
+                    uploadUrl = "rtmp://138.128.223.161:1935/live"+id+"/";
+                }
+                Toast.makeText(LandscapeActivity.this,uploadUrl, Toast.LENGTH_SHORT).show();
+                mRtmpSender.setAddress(uploadUrl);
+                mProgressConnecting.setVisibility(View.VISIBLE);
+                Toast.makeText(LandscapeActivity.this, "start connecting", Toast.LENGTH_SHORT).show();
+                mRecordBtn.setBackgroundResource(R.mipmap.ic_record_stop);
+                mRtmpSender.connect();
+                isRecording = true;
+                mUploadDialog.dismiss();
+            }
+        });
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mUploadDialog.dismiss();
+            }
+        });
+    }
 
     private void initLiveView() {
         SopCastLog.isOpen(true);
