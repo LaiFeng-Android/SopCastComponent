@@ -140,9 +140,9 @@ public class LandscapeActivity extends Activity {
                 String uploadUrl;
                 String zero = "0";
                 if(id.compareTo(zero) == 0){
-                    uploadUrl = "rtmp://138.128.223.161:1935/live/";
+                    uploadUrl = "rtmp://39.106.49.206:1935/live/";
                 }else{
-                    uploadUrl = "rtmp://138.128.223.161:1935/live"+id+"/";
+                    uploadUrl = "rtmp://39.106.49.206:1935/live"+id+"/";
                 }
                 Toast.makeText(LandscapeActivity.this,uploadUrl, Toast.LENGTH_SHORT).show();
                 mRtmpSender.setAddress(uploadUrl);
