@@ -34,6 +34,15 @@ import com.laifeng.sopcastsdk.utils.SopCastLog;
 import com.laifeng.sopcastsdk.video.effect.GrayEffect;
 import com.laifeng.sopcastsdk.video.effect.NullEffect;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.laifeng.sopcastsdk.constant.SopCastConstant.TAG;
 
 public class LandscapeActivity extends Activity {
@@ -52,6 +61,7 @@ public class LandscapeActivity extends Activity {
     private int mCurrentBps;
     private Dialog mUploadDialog;
     private EditText mAddressET;
+    private String mCameraControlJson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +88,11 @@ public class LandscapeActivity extends Activity {
         mFaceBtn = (MultiToggleImageButton) findViewById(R.id.camera_switch_button);
         mRecordBtn = (ImageButton) findViewById(R.id.btnRecord);
         mProgressConnecting = (ProgressBar) findViewById(R.id.progressConnecting);
+    }
+
+    private void initCameraControlJson(){
+        mCameraControlJson = httpGet("http://www.mockhttp.cn/mock/camera");
+
     }
 
     private void initListeners() {
@@ -172,7 +187,7 @@ public class LandscapeActivity extends Activity {
         mLFLiveView.setCameraConfiguration(cameraConfiguration);
 
         VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-        videoBuilder.setSize(640, 360).setBps(300,800);
+        videoBuilder.setSize(960, 540).setBps(450,1200);
         mVideoConfiguration = videoBuilder.build();
         mLFLiveView.setVideoConfiguration(mVideoConfiguration);
 
@@ -333,5 +348,33 @@ public class LandscapeActivity extends Activity {
         super.onDestroy();
         mLFLiveView.stop();
         mLFLiveView.release();
+    }
+
+    public String httpGet( String httpUrl ){
+        String result = "" ;
+        try {
+            BufferedReader reader = null;
+            StringBuffer sbf = new StringBuffer() ;
+
+            URL url  = new URL( httpUrl ) ;
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection() ;
+            //设置超时时间 10s
+            connection.setConnectTimeout(10000);
+            //设置请求方式
+            connection.setRequestMethod( "GET" ) ;
+            connection.connect();
+            InputStream is = connection.getInputStream() ;
+            reader = new BufferedReader(new InputStreamReader( is , "UTF-8" )) ;
+            String strRead = null ;
+            while ((strRead = reader.readLine()) != null) {
+                sbf.append(strRead);
+                sbf.append("\r\n");
+            }
+            reader.close();
+            result = sbf.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }
