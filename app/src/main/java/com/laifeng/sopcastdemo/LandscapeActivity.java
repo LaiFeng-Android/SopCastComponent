@@ -19,6 +19,7 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.view.WindowManager;
+import android.util.Log;
 
 import com.laifeng.sopcastdemo.ui.MultiToggleImageButton;
 import com.laifeng.sopcastsdk.camera.CameraListener;
@@ -43,6 +44,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.os.Handler;
+import android.os.Message;
+
 import static com.laifeng.sopcastsdk.constant.SopCastConstant.TAG;
 
 public class LandscapeActivity extends Activity {
@@ -61,8 +69,21 @@ public class LandscapeActivity extends Activity {
     private int mCurrentBps;
     private Dialog mUploadDialog;
     private EditText mAddressET;
-    private String mCameraControlJson;
+    private String mid;
+    private boolean mCameraFront;
 
+    private Handler cameraHandler = new Handler(){
+    @Override
+    public void handleMessage(Message msg) {
+        switch(msg.what){
+        case 0://切换摄像头
+            mLFLiveView.switchCamera();
+            break;
+        default:
+            break;
+        }
+    }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +96,10 @@ public class LandscapeActivity extends Activity {
         initListeners();
         initLiveView();
         initRtmpAddressDialog();
+
         openAddressDialog();
+
+        mCameraFront = false;
     }
 
     private void initEffects() {
@@ -104,10 +128,39 @@ public class LandscapeActivity extends Activity {
         mProgressConnecting = (ProgressBar) findViewById(R.id.progressConnecting);
     }
 
-    private void initCameraControlJson(){
-        mCameraControlJson = httpGet("http://www.mockhttp.cn/mock/camera");
+    private void checkServerCommand(){
+        new Thread(
+            new Runnable(){
+                public void run() {
+                    String jsonStr = httpGet("http://www.mockhttp.cn/mock/camera");
+                    //解析json文件
+                    Log.d("camera",jsonStr);
 
+                    try {
+                        JSONArray jsonArray = new JSONObject(jsonStr).getJSONArray("cameraInfo");
+                        for(int i=0;i<jsonArray.length();i++) {
+                            JSONObject jsonObject=(JSONObject)jsonArray.get(i);
+                            String id=jsonObject.getString("id");
+                            if(id.compareTo(mid)==0){//找到车辆
+                                int facing=jsonObject.getInt("camera");
+                                int cameraNow = mLFLiveView.getCameraData().cameraFacing;
+                                Log.d("camera",String.format("cameraid:%d",cameraNow));
+                                if(facing != cameraNow){
+                                    cameraHandler.sendEmptyMessage(0);//0切换摄像头
+                                }
+                                break;
+                            }
+                        }
+                        }catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+
+        ).start();
     }
+
 
     private void initListeners() {
         mFlashBtn.setOnStateChangeListener(new MultiToggleImageButton.OnStateChangeListener() {
@@ -161,17 +214,17 @@ public class LandscapeActivity extends Activity {
         okBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String id = mAddressET.getText().toString();
-                if(TextUtils.isEmpty(id)) {
+                mid = mAddressET.getText().toString();
+                if(TextUtils.isEmpty(mid)) {
                     Toast.makeText(LandscapeActivity.this, "车号ID不为空!", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 String uploadUrl;
                 String zero = "0";
-                if(id.compareTo(zero) == 0){
+                if(mid.compareTo(zero) == 0){
                     uploadUrl = "rtmp://39.106.49.206:1935/live/";
                 }else{
-                    uploadUrl = "rtmp://39.106.49.206:1935/live"+id+"/";
+                    uploadUrl = "rtmp://39.106.49.206:1935/live"+mid+"/";
                 }
                 Toast.makeText(LandscapeActivity.this,uploadUrl, Toast.LENGTH_SHORT).show();
                 mRtmpSender.setAddress(uploadUrl);
@@ -181,6 +234,9 @@ public class LandscapeActivity extends Activity {
                 mRtmpSender.connect();
                 isRecording = true;
                 mUploadDialog.dismiss();
+
+                //查询服务器状态
+                checkServerCommand();
             }
         });
         cancelBtn.setOnClickListener(new View.OnClickListener() {
