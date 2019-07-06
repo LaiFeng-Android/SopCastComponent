@@ -98,9 +98,7 @@ public class LandscapeActivity extends Activity {
         initListeners();
         initLiveView();
         initRtmpAddressDialog();
-
-        openAddressDialog();
-
+        mUploadDialog.show();
     }
 
     private void initEffects() {
@@ -108,18 +106,6 @@ public class LandscapeActivity extends Activity {
         mNullEffect = new NullEffect(this);
     }
 
-    private void openAddressDialog(){
-        if(isRecording) {
-            mProgressConnecting.setVisibility(View.GONE);
-            Toast.makeText(LandscapeActivity.this, "stop living", Toast.LENGTH_SHORT).show();
-            mRecordBtn.setBackgroundResource(R.mipmap.ic_record_start);
-            mLFLiveView.stop();
-            isRecording = false;
-        }
-        else {
-            mUploadDialog.show();
-        }
-    }
 
     private void initViews() {
         mLFLiveView = (CameraLivingView) findViewById(R.id.liveView);
@@ -173,6 +159,7 @@ public class LandscapeActivity extends Activity {
                 Log.d("camera",jsonStr);
 
                 try {
+                    //摄像头控制
                     JSONArray jsonArray = new JSONObject(jsonStr).getJSONArray("cameraInfo");
                     for(int i=0;i<jsonArray.length();i++) {
                         JSONObject jsonObject=(JSONObject)jsonArray.get(i);
@@ -187,7 +174,16 @@ public class LandscapeActivity extends Activity {
                             break;
                         }
                     }
-                }catch (JSONException e) {
+                    //推拉流控制
+                    JSONArray jsonArray2 = new JSONObject(jsonStr).getJSONArray("streamInfo");
+                    for(int i=0;i<jsonArray2.length();i++) {
+                        JSONObject jsonObject=(JSONObject)jsonArray2.get(i);
+                        String id=jsonObject.getString("id");
+                        if(id.compareTo(mid)==0) {//找到车辆
+                            boolean cRecord = jsonObject.getBoolean("push");
+                        }
+                    }
+                    }catch (JSONException e) {
                     e.printStackTrace();
                 }
 
@@ -218,17 +214,8 @@ public class LandscapeActivity extends Activity {
                     mLFLiveView.stop();
                     isRecording = false;
                 }
-//                else{
-//                    String uploadUrl = "rtmp://138.128.223.161:1935/live/";
-//                    mRtmpSender.setAddress(uploadUrl);
-//                    mProgressConnecting.setVisibility(View.VISIBLE);
-//                    Toast.makeText(LandscapeActivity.this, "start connecting", Toast.LENGTH_SHORT).show();
-//                    mRecordBtn.setBackgroundResource(R.mipmap.ic_record_stop);
-//                    mRtmpSender.connect();
-//                    isRecording = true;
-//                }
                 else {
-                    mUploadDialog.show();
+                    startLive();
                 }
             }
         });
@@ -252,22 +239,9 @@ public class LandscapeActivity extends Activity {
                     Toast.makeText(LandscapeActivity.this, "车号ID不为空!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                String uploadUrl;
-                String zero = "0";
-                if(mid.compareTo(zero) == 0){
-                    uploadUrl = "rtmp://39.106.49.206:1935/live/";
-                }else{
-                    uploadUrl = "rtmp://39.106.49.206:1935/live"+mid+"/";
-                }
-                Toast.makeText(LandscapeActivity.this,uploadUrl, Toast.LENGTH_SHORT).show();
-                mRtmpSender.setAddress(uploadUrl);
-                mProgressConnecting.setVisibility(View.VISIBLE);
-                Toast.makeText(LandscapeActivity.this, "start connecting", Toast.LENGTH_SHORT).show();
-                mRecordBtn.setBackgroundResource(R.mipmap.ic_record_stop);
-                mRtmpSender.connect();
-                isRecording = true;
+                //开始推流
+                startLive();
                 mUploadDialog.dismiss();
-
                 //创建轮询池
                 createSchedulePool();
             }
@@ -278,6 +252,23 @@ public class LandscapeActivity extends Activity {
                 mUploadDialog.dismiss();
             }
         });
+    }
+
+    private void startLive(){
+        String uploadUrl;
+        String zero = "0";
+        if(mid.compareTo(zero) == 0){
+            uploadUrl = "rtmp://39.106.49.206:1935/live/";
+        }else{
+            uploadUrl = "rtmp://39.106.49.206:1935/live"+mid+"/";
+        }
+        Toast.makeText(LandscapeActivity.this,uploadUrl, Toast.LENGTH_SHORT).show();
+        mRtmpSender.setAddress(uploadUrl);
+        mProgressConnecting.setVisibility(View.VISIBLE);
+        Toast.makeText(LandscapeActivity.this, "start connecting", Toast.LENGTH_SHORT).show();
+        mRecordBtn.setBackgroundResource(R.mipmap.ic_record_stop);
+        mRtmpSender.connect();
+        isRecording = true;
     }
 
     private void initLiveView() {
