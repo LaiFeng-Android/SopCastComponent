@@ -75,11 +75,25 @@ public class LandscapeActivity extends Activity {
         initListeners();
         initLiveView();
         initRtmpAddressDialog();
+        openAddressDialog();
     }
 
     private void initEffects() {
         mGrayEffect = new GrayEffect(this);
         mNullEffect = new NullEffect(this);
+    }
+
+    private void openAddressDialog(){
+        if(isRecording) {
+            mProgressConnecting.setVisibility(View.GONE);
+            Toast.makeText(LandscapeActivity.this, "stop living", Toast.LENGTH_SHORT).show();
+            mRecordBtn.setBackgroundResource(R.mipmap.ic_record_start);
+            mLFLiveView.stop();
+            isRecording = false;
+        }
+        else {
+            mUploadDialog.show();
+        }
     }
 
     private void initViews() {
