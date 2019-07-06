@@ -187,7 +187,7 @@ public class LandscapeActivity extends Activity {
         mLFLiveView.setCameraConfiguration(cameraConfiguration);
 
         VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-        videoBuilder.setSize(960, 540).setBps(450,1200);
+        videoBuilder.setSize(1280, 720).setBps(600,1600);
         mVideoConfiguration = videoBuilder.build();
         mLFLiveView.setVideoConfiguration(mVideoConfiguration);
 
