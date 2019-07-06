@@ -50,6 +50,9 @@ import org.json.JSONObject;
 
 import android.os.Handler;
 import android.os.Message;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static com.laifeng.sopcastsdk.constant.SopCastConstant.TAG;
 
@@ -70,7 +73,6 @@ public class LandscapeActivity extends Activity {
     private Dialog mUploadDialog;
     private EditText mAddressET;
     private String mid;
-    private boolean mCameraFront;
 
     private Handler cameraHandler = new Handler(){
     @Override
@@ -99,7 +101,6 @@ public class LandscapeActivity extends Activity {
 
         openAddressDialog();
 
-        mCameraFront = false;
     }
 
     private void initEffects() {
@@ -161,6 +162,38 @@ public class LandscapeActivity extends Activity {
         ).start();
     }
 
+    private void createSchedulePool(){
+        ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(5);
+        scheduledThreadPool.scheduleAtFixedRate(new Runnable() {
+
+            @Override
+            public void run() {
+                String jsonStr = httpGet("http://www.mockhttp.cn/mock/camera");
+                //解析json文件
+                Log.d("camera",jsonStr);
+
+                try {
+                    JSONArray jsonArray = new JSONObject(jsonStr).getJSONArray("cameraInfo");
+                    for(int i=0;i<jsonArray.length();i++) {
+                        JSONObject jsonObject=(JSONObject)jsonArray.get(i);
+                        String id=jsonObject.getString("id");
+                        if(id.compareTo(mid)==0){//找到车辆
+                            int facing=jsonObject.getInt("camera");
+                            int cameraNow = mLFLiveView.getCameraData().cameraFacing;
+                            Log.d("camera",String.format("cameraid:%d",cameraNow));
+                            if(facing != cameraNow){
+                                cameraHandler.sendEmptyMessage(0);//0切换摄像头
+                            }
+                            break;
+                        }
+                    }
+                }catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, 1, 3, TimeUnit.SECONDS);
+    }
 
     private void initListeners() {
         mFlashBtn.setOnStateChangeListener(new MultiToggleImageButton.OnStateChangeListener() {
@@ -235,8 +268,8 @@ public class LandscapeActivity extends Activity {
                 isRecording = true;
                 mUploadDialog.dismiss();
 
-                //查询服务器状态
-                checkServerCommand();
+                //创建轮询池
+                createSchedulePool();
             }
         });
         cancelBtn.setOnClickListener(new View.OnClickListener() {
