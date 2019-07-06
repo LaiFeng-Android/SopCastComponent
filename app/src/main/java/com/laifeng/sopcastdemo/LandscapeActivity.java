@@ -81,6 +81,13 @@ public class LandscapeActivity extends Activity {
         case 0://切换摄像头
             mLFLiveView.switchCamera();
             break;
+        case 1://切换推拉流状态
+            if(isRecording) {
+                stopLive();
+            } else {
+                startLive();
+            }
+            break;
         default:
             break;
         }
@@ -113,39 +120,6 @@ public class LandscapeActivity extends Activity {
         mFaceBtn = (MultiToggleImageButton) findViewById(R.id.camera_switch_button);
         mRecordBtn = (ImageButton) findViewById(R.id.btnRecord);
         mProgressConnecting = (ProgressBar) findViewById(R.id.progressConnecting);
-    }
-
-    private void checkServerCommand(){
-        new Thread(
-            new Runnable(){
-                public void run() {
-                    String jsonStr = httpGet("http://www.mockhttp.cn/mock/camera");
-                    //解析json文件
-                    Log.d("camera",jsonStr);
-
-                    try {
-                        JSONArray jsonArray = new JSONObject(jsonStr).getJSONArray("cameraInfo");
-                        for(int i=0;i<jsonArray.length();i++) {
-                            JSONObject jsonObject=(JSONObject)jsonArray.get(i);
-                            String id=jsonObject.getString("id");
-                            if(id.compareTo(mid)==0){//找到车辆
-                                int facing=jsonObject.getInt("camera");
-                                int cameraNow = mLFLiveView.getCameraData().cameraFacing;
-                                Log.d("camera",String.format("cameraid:%d",cameraNow));
-                                if(facing != cameraNow){
-                                    cameraHandler.sendEmptyMessage(0);//0切换摄像头
-                                }
-                                break;
-                            }
-                        }
-                        }catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            }
-
-        ).start();
     }
 
     private void createSchedulePool(){
@@ -181,6 +155,9 @@ public class LandscapeActivity extends Activity {
                         String id=jsonObject.getString("id");
                         if(id.compareTo(mid)==0) {//找到车辆
                             boolean cRecord = jsonObject.getBoolean("push");
+                            if(cRecord != isRecording)
+                                cameraHandler.sendEmptyMessage(1);//1切换推流状态
+                            break;
                         }
                     }
                     }catch (JSONException e) {
@@ -208,13 +185,8 @@ public class LandscapeActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if(isRecording) {
-                    mProgressConnecting.setVisibility(View.GONE);
-                    Toast.makeText(LandscapeActivity.this, "stop living", Toast.LENGTH_SHORT).show();
-                    mRecordBtn.setBackgroundResource(R.mipmap.ic_record_start);
-                    mLFLiveView.stop();
-                    isRecording = false;
-                }
-                else {
+                    stopLive();
+                } else {
                     startLive();
                 }
             }
@@ -254,6 +226,13 @@ public class LandscapeActivity extends Activity {
         });
     }
 
+    private void stopLive(){
+        mProgressConnecting.setVisibility(View.GONE);
+        Toast.makeText(LandscapeActivity.this, "stop living", Toast.LENGTH_SHORT).show();
+        mRecordBtn.setBackgroundResource(R.mipmap.ic_record_start);
+        mLFLiveView.stop();
+        isRecording = false;
+    }
     private void startLive(){
         String uploadUrl;
         String zero = "0";
