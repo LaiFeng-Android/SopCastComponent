@@ -230,7 +230,7 @@ public class LandscapeActivity extends Activity {
         mLFLiveView.setPacker(packer);
         //设置发送器
         mRtmpSender = new RtmpSender();
-        mRtmpSender.setVideoParams(640, 360);
+        mRtmpSender.setVideoParams(1280, 720);
         mRtmpSender.setAudioParams(AudioConfiguration.DEFAULT_FREQUENCY, 16, false);
         mRtmpSender.setSenderListener(mSenderListener);
         mLFLiveView.setSender(mRtmpSender);
