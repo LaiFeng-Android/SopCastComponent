@@ -450,4 +450,14 @@ public class LandscapeActivity extends Activity {
         }
         return result;
     }
+
+    protected void onPause(){
+        super.onPause();
+        Log.e("active","active:pause");
+    }
+
+    protected void onResume(){
+        super.onResume();
+        Log.e("active","active:resume");
+    }
 }
