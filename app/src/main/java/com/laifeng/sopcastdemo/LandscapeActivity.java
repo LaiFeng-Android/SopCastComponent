@@ -72,7 +72,9 @@ public class LandscapeActivity extends Activity {
     private int mCurrentBps;
     private Dialog mUploadDialog;
     private EditText mAddressET;
+    private EditText msolution;
     private String mid;
+    private String mresolution;
 
     private Handler cameraHandler = new Handler(){
     @Override
@@ -163,8 +165,7 @@ public class LandscapeActivity extends Activity {
                     }catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-            }
+         }
         }, 1, 3, TimeUnit.SECONDS);
     }
 
@@ -197,6 +198,7 @@ public class LandscapeActivity extends Activity {
         LayoutInflater inflater = getLayoutInflater();
         View playView = inflater.inflate(R.layout.address_dialog,(ViewGroup) findViewById(R.id.dialog));
         mAddressET = (EditText) playView.findViewById(R.id.address);
+        msolution = (EditText) playView.findViewById(R.id.resolution);
         Button okBtn = (Button) playView.findViewById(R.id.ok);
         Button cancelBtn = (Button) playView.findViewById(R.id.cancel);
         AlertDialog.Builder uploadBuilder = new AlertDialog.Builder(this);
@@ -211,11 +213,34 @@ public class LandscapeActivity extends Activity {
                     Toast.makeText(LandscapeActivity.this, "车号ID不为空!", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                //初始化参数
+                mresolution = msolution.getText().toString();
+                if(TextUtils.isEmpty(mresolution)){
+                    Toast.makeText(LandscapeActivity.this, "分辨率为空，默认用1080!", Toast.LENGTH_SHORT).show();
+                }else{
+                    if(mresolution.compareTo("540")==0){
+                        VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
+                        videoBuilder.setSize(960, 540).setBps(450,1200);
+                        mVideoConfiguration = videoBuilder.build();
+                        mLFLiveView.setVideoConfiguration(mVideoConfiguration);
+
+                        mRtmpSender.setVideoParams(960, 540);
+
+                    }else if (mresolution.compareTo("720")==0){
+                        VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
+                        videoBuilder.setSize(1280, 720).setBps(600,1600);
+                        mVideoConfiguration = videoBuilder.build();
+                        mLFLiveView.setVideoConfiguration(mVideoConfiguration);
+
+                        mRtmpSender.setVideoParams(1280, 720);
+
+                    }
+                }
                 //开始推流
                 startLive();
                 mUploadDialog.dismiss();
                 //创建轮询池
-                createSchedulePool();
+                //createSchedulePool();
             }
         });
         cancelBtn.setOnClickListener(new View.OnClickListener() {
@@ -260,7 +285,7 @@ public class LandscapeActivity extends Activity {
         mLFLiveView.setCameraConfiguration(cameraConfiguration);
 
         VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-        videoBuilder.setSize(1280, 720).setBps(600,1600);
+        videoBuilder.setSize(1920, 1080).setBps(900,2400);
         mVideoConfiguration = videoBuilder.build();
         mLFLiveView.setVideoConfiguration(mVideoConfiguration);
 
@@ -303,7 +328,7 @@ public class LandscapeActivity extends Activity {
         mLFLiveView.setPacker(packer);
         //设置发送器
         mRtmpSender = new RtmpSender();
-        mRtmpSender.setVideoParams(1280, 720);
+        mRtmpSender.setVideoParams(1920, 1080);
         mRtmpSender.setAudioParams(AudioConfiguration.DEFAULT_FREQUENCY, 16, false);
         mRtmpSender.setSenderListener(mSenderListener);
         mLFLiveView.setSender(mRtmpSender);
