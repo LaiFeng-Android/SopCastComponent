@@ -130,38 +130,30 @@ public class LandscapeActivity extends Activity {
 
             @Override
             public void run() {
-                String jsonStr = httpGet("http://www.mockhttp.cn/mock/camera");
+                String jsonStr = httpGet("http://10.235.22.18:8080/api/getClientStatus");
                 //解析json文件
                 Log.d("camera",jsonStr);
 
                 try {
-                    //摄像头控制
-                    JSONArray jsonArray = new JSONObject(jsonStr).getJSONArray("cameraInfo");
-                    for(int i=0;i<jsonArray.length();i++) {
-                        JSONObject jsonObject=(JSONObject)jsonArray.get(i);
-                        String id=jsonObject.getString("id");
-                        if(id.compareTo(mid)==0){//找到车辆
-                            int facing=jsonObject.getInt("camera");
-                            int cameraNow = mLFLiveView.getCameraData().cameraFacing;
-                            Log.d("camera",String.format("cameraid:%d",cameraNow));
-                            if(facing != cameraNow){
-                                cameraHandler.sendEmptyMessage(0);//0切换摄像头
+                        JSONArray jsonArray = new JSONArray(jsonStr);
+                        for(int i=0;i<jsonArray.length();i++) {
+                            JSONObject jsonObject=(JSONObject)jsonArray.get(i);
+                            String id=jsonObject.getString("id");
+                            if(id.compareTo(mid)==0){//找到车辆
+                                //摄像头控制
+                                int facing=jsonObject.getInt("cameraPosition");
+                                int cameraNow = mLFLiveView.getCameraData().cameraFacing;
+                                Log.d("camera",String.format("cameraid:%d",cameraNow));
+                                if(facing != cameraNow){
+                                    cameraHandler.sendEmptyMessage(0);//0切换摄像头
+                                }
+                                //推流状态
+                                boolean cRecord = jsonObject.getBoolean("pushStatus");
+                                if(cRecord != isRecording)
+                                    cameraHandler.sendEmptyMessage(1);//1切换推流状态
+                                break;
                             }
-                            break;
                         }
-                    }
-                    //推拉流控制
-                    JSONArray jsonArray2 = new JSONObject(jsonStr).getJSONArray("streamInfo");
-                    for(int i=0;i<jsonArray2.length();i++) {
-                        JSONObject jsonObject=(JSONObject)jsonArray2.get(i);
-                        String id=jsonObject.getString("id");
-                        if(id.compareTo(mid)==0) {//找到车辆
-                            boolean cRecord = jsonObject.getBoolean("push");
-                            if(cRecord != isRecording)
-                                cameraHandler.sendEmptyMessage(1);//1切换推流状态
-                            break;
-                        }
-                    }
                     }catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -240,7 +232,7 @@ public class LandscapeActivity extends Activity {
                 startLive();
                 mUploadDialog.dismiss();
                 //创建轮询池
-                //createSchedulePool();
+                createSchedulePool();
             }
         });
         cancelBtn.setOnClickListener(new View.OnClickListener() {
