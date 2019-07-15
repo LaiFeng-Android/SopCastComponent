@@ -14,15 +14,15 @@
         android:layout_height="wrap_content"
         android:textSize="14dp"
         android:hint="车牌数字（0-100）"/>
-    <EditText
-        android:id="@+id/resolution"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginTop="30dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="14dp"
-        android:hint="分辨率（540，720），不填默认1080"/>
+    <!--<EditText-->
+        <!--android:id="@+id/resolution"-->
+        <!--android:layout_marginLeft="15dp"-->
+        <!--android:layout_marginRight="15dp"-->
+        <!--android:layout_marginTop="30dp"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:textSize="14dp"-->
+        <!--android:hint="分辨率（540，720），不填默认1080"/>-->
 
     <LinearLayout
         android:orientation="horizontal"

@@ -43,6 +43,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,6 +54,16 @@ import android.os.Message;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.*;
+import org.apache.http.impl.client.*;
 
 import static com.laifeng.sopcastsdk.constant.SopCastConstant.TAG;
 
@@ -75,6 +86,7 @@ public class LandscapeActivity extends Activity {
     private EditText msolution;
     private String mid;
     private String mresolution;
+    private String mStatus;
 
     private Handler cameraHandler = new Handler(){
     @Override
@@ -130,7 +142,7 @@ public class LandscapeActivity extends Activity {
 
             @Override
             public void run() {
-                String jsonStr = httpGet("http://10.235.22.18:8080/api/getClientStatus");
+                String jsonStr = httpGet("http://39.106.49.206/api/getClientStatus");
                 //解析json文件
                 Log.d("camera",jsonStr);
 
@@ -190,7 +202,7 @@ public class LandscapeActivity extends Activity {
         LayoutInflater inflater = getLayoutInflater();
         View playView = inflater.inflate(R.layout.address_dialog,(ViewGroup) findViewById(R.id.dialog));
         mAddressET = (EditText) playView.findViewById(R.id.address);
-        msolution = (EditText) playView.findViewById(R.id.resolution);
+        //msolution = (EditText) playView.findViewById(R.id.resolution);
         Button okBtn = (Button) playView.findViewById(R.id.ok);
         Button cancelBtn = (Button) playView.findViewById(R.id.cancel);
         AlertDialog.Builder uploadBuilder = new AlertDialog.Builder(this);
@@ -206,28 +218,28 @@ public class LandscapeActivity extends Activity {
                     return;
                 }
                 //初始化参数
-                mresolution = msolution.getText().toString();
-                if(TextUtils.isEmpty(mresolution)){
-                    Toast.makeText(LandscapeActivity.this, "分辨率为空，默认用1080!", Toast.LENGTH_SHORT).show();
-                }else{
-                    if(mresolution.compareTo("540")==0){
-                        VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-                        videoBuilder.setSize(960, 540).setBps(450,1200);
-                        mVideoConfiguration = videoBuilder.build();
-                        mLFLiveView.setVideoConfiguration(mVideoConfiguration);
-
-                        mRtmpSender.setVideoParams(960, 540);
-
-                    }else if (mresolution.compareTo("720")==0){
-                        VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-                        videoBuilder.setSize(1280, 720).setBps(600,1600);
-                        mVideoConfiguration = videoBuilder.build();
-                        mLFLiveView.setVideoConfiguration(mVideoConfiguration);
-
-                        mRtmpSender.setVideoParams(1280, 720);
-
-                    }
-                }
+//                mresolution = msolution.getText().toString();
+//                if(TextUtils.isEmpty(mresolution)){
+//                    Toast.makeText(LandscapeActivity.this, "分辨率为空，默认用1080!", Toast.LENGTH_SHORT).show();
+//                }else{
+//                    if(mresolution.compareTo("540")==0){
+//                        VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
+//                        videoBuilder.setSize(960, 540).setBps(450,1200);
+//                        mVideoConfiguration = videoBuilder.build();
+//                        mLFLiveView.setVideoConfiguration(mVideoConfiguration);
+//
+//                        mRtmpSender.setVideoParams(960, 540);
+//
+//                    }else if (mresolution.compareTo("720")==0){
+//                        VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
+//                        videoBuilder.setSize(1280, 720).setBps(600,1600);
+//                        mVideoConfiguration = videoBuilder.build();
+//                        mLFLiveView.setVideoConfiguration(mVideoConfiguration);
+//
+//                        mRtmpSender.setVideoParams(1280, 720);
+//
+//                    }
+//                }
                 //开始推流
                 startLive();
                 mUploadDialog.dismiss();
@@ -251,13 +263,7 @@ public class LandscapeActivity extends Activity {
         isRecording = false;
     }
     private void startLive(){
-        String uploadUrl;
-        String zero = "0";
-        if(mid.compareTo(zero) == 0){
-            uploadUrl = "rtmp://39.106.49.206:1935/live/";
-        }else{
-            uploadUrl = "rtmp://39.106.49.206:1935/live"+mid+"/";
-        }
+        String uploadUrl = "rtmp://39.106.49.206:1935/live/"+mid;
         Toast.makeText(LandscapeActivity.this,uploadUrl, Toast.LENGTH_SHORT).show();
         mRtmpSender.setAddress(uploadUrl);
         mProgressConnecting.setVisibility(View.VISIBLE);
@@ -265,6 +271,8 @@ public class LandscapeActivity extends Activity {
         mRecordBtn.setBackgroundResource(R.mipmap.ic_record_stop);
         mRtmpSender.connect();
         isRecording = true;
+        mStatus = "正常";
+        doPost();
     }
 
     private void initLiveView() {
@@ -468,9 +476,44 @@ public class LandscapeActivity extends Activity {
         return result;
     }
 
+
+    private void doPost()
+    {
+        new Thread(new Runnable() {
+            public void run() {
+                final String uriAPI = "http://39.106.49.206/api/updateClientStatus?id=" + mid + "&appStatus="+mStatus;
+                HttpClient postClient = new DefaultHttpClient();
+                HttpPost httpPost = new HttpPost(uriAPI);
+                List<NameValuePair> params = new ArrayList<NameValuePair>();
+                UrlEncodedFormEntity entity;
+                HttpResponse response;
+                try {
+                    entity = new UrlEncodedFormEntity(params, "utf-8");
+                    httpPost.setEntity(entity);
+                    response = postClient.execute(httpPost);
+
+                    if (response.getStatusLine().getStatusCode() == 200) {
+
+                    }
+
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } catch (ClientProtocolException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                ;
+            }
+        }).start();
+
+    }
+
     protected void onPause(){
         super.onPause();
         Log.e("active","active:pause");
+        mStatus = "注意，设备已经切后台！！！";
+        doPost();
     }
 
     protected void onResume(){
