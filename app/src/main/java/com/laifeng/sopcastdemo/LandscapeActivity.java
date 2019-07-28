@@ -142,7 +142,7 @@ public class LandscapeActivity extends Activity {
 
             @Override
             public void run() {
-                String jsonStr = httpGet("http://39.106.49.206/api/getClientStatus");
+                String jsonStr = httpGet("http://114.247.187.137/api/getClientStatus");
                 //解析json文件
                 Log.d("camera",jsonStr);
 
@@ -263,7 +263,7 @@ public class LandscapeActivity extends Activity {
         isRecording = false;
     }
     private void startLive(){
-        String uploadUrl = "rtmp://39.106.49.206:1935/live/"+mid;
+        String uploadUrl = "rtmp://114.247.187.137:1935/live/"+mid;
         Toast.makeText(LandscapeActivity.this,uploadUrl, Toast.LENGTH_SHORT).show();
         mRtmpSender.setAddress(uploadUrl);
         mProgressConnecting.setVisibility(View.VISIBLE);
@@ -481,7 +481,7 @@ public class LandscapeActivity extends Activity {
     {
         new Thread(new Runnable() {
             public void run() {
-                final String uriAPI = "http://39.106.49.206/api/updateClientStatus?id=" + mid + "&appStatus="+mStatus;
+                final String uriAPI = "http://114.247.187.137/api/updateClientStatus?id=" + mid + "&appStatus="+mStatus;
                 HttpClient postClient = new DefaultHttpClient();
                 HttpPost httpPost = new HttpPost(uriAPI);
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
