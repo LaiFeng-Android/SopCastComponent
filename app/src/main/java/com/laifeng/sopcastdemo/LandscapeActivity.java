@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -163,8 +164,17 @@ public class LandscapeActivity extends Activity {
         initListeners();
         initLiveView();
         initRtmpAddressDialog();
-        mUploadDialog.setCanceledOnTouchOutside(false);
-        mUploadDialog.show();
+
+        SharedPreferences pref = getSharedPreferences("data",MODE_PRIVATE);
+        mid = pref.getString("id","");
+        if(TextUtils.isEmpty(mid)) {
+            mUploadDialog.setCanceledOnTouchOutside(false);
+            mUploadDialog.show();
+        }else{
+            //根据远端状态来判断
+            createSchedulePool();
+        }
+
     }
 
     private void initEffects() {
@@ -285,24 +295,29 @@ public class LandscapeActivity extends Activity {
 //
 //                    }
 //                }
-                //开始推流
-                startLive();
+                //持久化车牌号
+                SharedPreferences.Editor editor = getSharedPreferences("data",MODE_PRIVATE).edit();
+                editor.putString("id",mid);
+                editor.apply();
                 mUploadDialog.dismiss();
-                //创建轮询池
-                // createSchedulePool();
+
+                //开启状态查询
+                createSchedulePool();
             }
         });
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mUploadDialog.dismiss();
+                //开启状态查询
+                createSchedulePool();
             }
         });
     }
 
     private void stopLive(){
         mProgressConnecting.setVisibility(View.GONE);
-        Toast.makeText(LandscapeActivity.this, "stop living", Toast.LENGTH_SHORT).show();
+        Toast.makeText(LandscapeActivity.this, "停止直播！", Toast.LENGTH_SHORT).show();
         mRecordBtn.setBackgroundResource(R.mipmap.ic_record_start);
         mLFLiveView.stop();
         isRecording = false;
@@ -388,7 +403,7 @@ public class LandscapeActivity extends Activity {
             @Override
             public void startSuccess() {
                 //直播成功
-                Toast.makeText(LandscapeActivity.this, "start living", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LandscapeActivity.this, "开始直播,id号:"+mid, Toast.LENGTH_SHORT).show();
             }
         });
     }
