@@ -163,6 +163,7 @@ public class LandscapeActivity extends Activity {
         initListeners();
         initLiveView();
         initRtmpAddressDialog();
+        mUploadDialog.setCanceledOnTouchOutside(false);
         mUploadDialog.show();
     }
 
