@@ -148,7 +148,7 @@ public class LandscapeActivity extends Activity {
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 1: {
-                init();
+                Log.i("MainActivity","dialog权限回调");
                 }
                 return;
             }
@@ -169,6 +169,7 @@ public class LandscapeActivity extends Activity {
         mid = pref.getString("id","");
         if(TextUtils.isEmpty(mid)) {
             mUploadDialog.setCanceledOnTouchOutside(false);
+            Log.i("Dialog","dialog show");
             mUploadDialog.show();
         }else{
             //根据远端状态来判断
@@ -299,7 +300,17 @@ public class LandscapeActivity extends Activity {
                 SharedPreferences.Editor editor = getSharedPreferences("data",MODE_PRIVATE).edit();
                 editor.putString("id",mid);
                 editor.apply();
-                mUploadDialog.dismiss();
+
+                LandscapeActivity.this.runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        Log.i("Dialog","dialog dismiss");
+                        mUploadDialog.dismiss();
+                    }
+                });
+
+
 
                 //开启状态查询
                 createSchedulePool();
@@ -308,8 +319,13 @@ public class LandscapeActivity extends Activity {
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mUploadDialog.dismiss();
-                //开启状态查询
+                LandscapeActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.i("Dialog","dialog dismiss");
+                        mUploadDialog.dismiss();
+                    }
+                });                //开启状态查询
                 createSchedulePool();
             }
         });
@@ -324,6 +340,7 @@ public class LandscapeActivity extends Activity {
     }
     private void startLive(){
         String uploadUrl = "rtmp://114.247.187.137:1935/live/"+mid;
+        Log.i("mid","url:"+uploadUrl);
         Toast.makeText(LandscapeActivity.this,uploadUrl, Toast.LENGTH_SHORT).show();
         mRtmpSender.setAddress(uploadUrl);
         mProgressConnecting.setVisibility(View.VISIBLE);
