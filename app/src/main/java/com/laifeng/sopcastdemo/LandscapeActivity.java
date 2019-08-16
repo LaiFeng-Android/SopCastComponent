@@ -1,11 +1,14 @@
 package com.laifeng.sopcastdemo;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.GestureDetector;
@@ -20,6 +23,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.view.WindowManager;
 import android.util.Log;
+import android.os.Build;
 
 import com.laifeng.sopcastdemo.ui.MultiToggleImageButton;
 import com.laifeng.sopcastsdk.camera.CameraListener;
@@ -64,6 +68,7 @@ import org.apache.http.util.EntityUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.*;
 import org.apache.http.impl.client.*;
+import android.content.pm.PackageManager;
 
 import static com.laifeng.sopcastsdk.constant.SopCastConstant.TAG;
 
@@ -111,6 +116,8 @@ public class LandscapeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getPermission();
+
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_landscape);
@@ -120,6 +127,24 @@ public class LandscapeActivity extends Activity {
         initLiveView();
         initRtmpAddressDialog();
         mUploadDialog.show();
+    }
+
+    /** 获取权限*/
+    private void getPermission() {
+        if (Build.VERSION.SDK_INT>22){
+            if (ContextCompat.checkSelfPermission(LandscapeActivity.this,
+                    android.Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED){
+                //先判断有没有权限 ，没有就在这里进行权限的申请
+                ActivityCompat.requestPermissions(LandscapeActivity.this,
+                        new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.RECORD_AUDIO},1);
+            }else {
+                //说明已经获取到摄像头权限了
+                Log.i("MainActivity","已经获取了权限");
+            }
+        }else {
+//这个说明系统版本在6.0之下，不需要动态获取权限。
+            Log.i("MainActivity","这个说明系统版本在6.0之下，不需要动态获取权限。");
+        }
     }
 
     private void initEffects() {
@@ -244,7 +269,7 @@ public class LandscapeActivity extends Activity {
                 startLive();
                 mUploadDialog.dismiss();
                 //创建轮询池
-                createSchedulePool();
+                // createSchedulePool();
             }
         });
         cancelBtn.setOnClickListener(new View.OnClickListener() {
