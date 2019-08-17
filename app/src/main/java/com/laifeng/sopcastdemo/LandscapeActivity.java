@@ -94,6 +94,7 @@ public class LandscapeActivity extends Activity {
     private String mid;
     private String mresolution;
     private String mStatus;
+    private String mPublishUrl;
 
     private Handler cameraHandler = new Handler(){
     @Override
@@ -168,6 +169,7 @@ public class LandscapeActivity extends Activity {
 
         SharedPreferences pref = getSharedPreferences("data",MODE_PRIVATE);
         mid = pref.getString("id","");
+        mPublishUrl = pref.getString("url","rtmp://114.247.187.137:1935/live_540/");
         if(TextUtils.isEmpty(mid)) {
             mUploadDialog.setCanceledOnTouchOutside(false);
             Log.i("Dialog","dialog show");
@@ -265,7 +267,7 @@ public class LandscapeActivity extends Activity {
         LayoutInflater inflater = getLayoutInflater();
         View playView = inflater.inflate(R.layout.address_dialog,(ViewGroup) findViewById(R.id.dialog));
         mAddressET = (EditText) playView.findViewById(R.id.address);
-        //msolution = (EditText) playView.findViewById(R.id.resolution);
+        msolution = (EditText) playView.findViewById(R.id.resolution);
         Button okBtn = (Button) playView.findViewById(R.id.ok);
         Button cancelBtn = (Button) playView.findViewById(R.id.cancel);
         AlertDialog.Builder uploadBuilder = new AlertDialog.Builder(this);
@@ -281,31 +283,42 @@ public class LandscapeActivity extends Activity {
                     return;
                 }
                 //初始化参数
-//                mresolution = msolution.getText().toString();
-//                if(TextUtils.isEmpty(mresolution)){
-//                    Toast.makeText(LandscapeActivity.this, "分辨率为空，默认用1080!", Toast.LENGTH_SHORT).show();
-//                }else{
-//                    if(mresolution.compareTo("540")==0){
-//                        VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-//                        videoBuilder.setSize(960, 540).setBps(450,1200);
-//                        mVideoConfiguration = videoBuilder.build();
-//                        mLFLiveView.setVideoConfiguration(mVideoConfiguration);
-//
-//                        mRtmpSender.setVideoParams(960, 540);
-//
-//                    }else if (mresolution.compareTo("720")==0){
-//                        VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-//                        videoBuilder.setSize(1280, 720).setBps(600,1600);
-//                        mVideoConfiguration = videoBuilder.build();
-//                        mLFLiveView.setVideoConfiguration(mVideoConfiguration);
-//
-//                        mRtmpSender.setVideoParams(1280, 720);
-//
-//                    }
-//                }
-                //持久化车牌号
+                mresolution = msolution.getText().toString();
+
+                if(mresolution.compareTo("1080")==0){
+                    VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
+                    videoBuilder.setSize(1920, 1080).setBps(900,1800);
+                    mVideoConfiguration = videoBuilder.build();
+                    mLFLiveView.setVideoConfiguration(mVideoConfiguration);
+
+                    mRtmpSender.setVideoParams(1920, 1080);
+
+                    mPublishUrl = "rtmp://114.247.187.137:1935/live/";
+                }else if (mresolution.compareTo("720")==0){
+                    VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
+                    videoBuilder.setSize(1280, 720).setBps(600,1600);
+                    mVideoConfiguration = videoBuilder.build();
+                    mLFLiveView.setVideoConfiguration(mVideoConfiguration);
+
+                    mRtmpSender.setVideoParams(1280, 720);
+
+                    mPublishUrl = "rtmp://114.247.187.137:1935/live_720_convert/";
+                }else{
+                    Toast.makeText(LandscapeActivity.this, "默认用540", Toast.LENGTH_SHORT).show();
+                    VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
+                    videoBuilder.setSize(960, 540).setBps(450,1200);
+                    mVideoConfiguration = videoBuilder.build();
+                    mLFLiveView.setVideoConfiguration(mVideoConfiguration);
+
+                    mRtmpSender.setVideoParams(960, 540);
+
+                    mPublishUrl = "rtmp://114.247.187.137:1935/live_540/";
+                }
+
+                //持久化
                 SharedPreferences.Editor editor = getSharedPreferences("data",MODE_PRIVATE).edit();
                 editor.putString("id",mid);
+                editor.putString("url",mPublishUrl);
                 editor.apply();
 
                 LandscapeActivity.this.runOnUiThread(new Runnable() {
@@ -344,7 +357,7 @@ public class LandscapeActivity extends Activity {
             Toast.makeText(LandscapeActivity.this, "mid未赋值，无法推流", Toast.LENGTH_SHORT).show();
             return;
         }
-        String uploadUrl = "rtmp://114.247.187.137:1935/live/"+mid;
+        String uploadUrl = mPublishUrl+mid;
         Log.i("mid","url:"+uploadUrl);
         Toast.makeText(LandscapeActivity.this,uploadUrl, Toast.LENGTH_SHORT).show();
         mRtmpSender.setAddress(uploadUrl);
@@ -367,7 +380,7 @@ public class LandscapeActivity extends Activity {
         mLFLiveView.setCameraConfiguration(cameraConfiguration);
 
         VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-        videoBuilder.setSize(1920, 1080).setBps(900,1800);
+        videoBuilder.setSize(960, 540).setBps(450,1200);
         mVideoConfiguration = videoBuilder.build();
         mLFLiveView.setVideoConfiguration(mVideoConfiguration);
 
@@ -410,7 +423,7 @@ public class LandscapeActivity extends Activity {
         mLFLiveView.setPacker(packer);
         //设置发送器
         mRtmpSender = new RtmpSender();
-        mRtmpSender.setVideoParams(1920, 1080);
+        mRtmpSender.setVideoParams(960, 540);
         mRtmpSender.setAudioParams(AudioConfiguration.DEFAULT_FREQUENCY, 16, false);
         mRtmpSender.setSenderListener(mSenderListener);
         mLFLiveView.setSender(mRtmpSender);
@@ -425,7 +438,7 @@ public class LandscapeActivity extends Activity {
             @Override
             public void startSuccess() {
                 //直播成功
-                Toast.makeText(LandscapeActivity.this, "开始直播,id号:"+mid, Toast.LENGTH_SHORT).show();
+                Toast.makeText(LandscapeActivity.this, "开始直播,id号:"+mid+",地址:"+mPublishUrl, Toast.LENGTH_SHORT).show();
             }
         });
     }
