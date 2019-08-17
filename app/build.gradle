@@ -3,11 +3,11 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
     }
-    compileSdkVersion 26
+    compileSdkVersion 23
     defaultConfig {
         applicationId "com.laifeng.sopcastdemo"
         minSdkVersion 14
-        targetSdkVersion 26
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
     }
@@ -29,6 +29,6 @@ android {
 
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
-    api 'com.android.support:appcompat-v7:26.0.0'
+    api 'com.android.support:appcompat-v7:23.0.0'
     api project(':sopcast-sdk')
 }

@@ -30,6 +30,10 @@
             android:id="@+id/camera_switch_button"
             style="@style/NiceOption"
             app:imageIds="@array/camera_id_icons" />
+        <com.laifeng.sopcastdemo.ui.MultiToggleImageButton
+            android:id="@+id/id_button"
+            style="@style/NiceOption"
+            app:imageIds="@array/camera_render_icons" />
     </com.laifeng.sopcastdemo.ui.TopRightWeightedLayout>
 
     <LinearLayout

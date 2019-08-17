@@ -77,6 +77,7 @@ public class LandscapeActivity extends Activity {
     private CameraLivingView mLFLiveView;
     private MultiToggleImageButton mFlashBtn;
     private MultiToggleImageButton mFaceBtn;
+    private MultiToggleImageButton midBtn;
     private GestureDetector mGestureDetector;
     private GrayEffect mGrayEffect;
     private NullEffect mNullEffect;
@@ -171,11 +172,10 @@ public class LandscapeActivity extends Activity {
             mUploadDialog.setCanceledOnTouchOutside(false);
             Log.i("Dialog","dialog show");
             mUploadDialog.show();
-        }else{
-            //根据远端状态来判断
-            createSchedulePool();
         }
 
+        //根据远端状态来判断
+        createSchedulePool();
     }
 
     private void initEffects() {
@@ -188,6 +188,7 @@ public class LandscapeActivity extends Activity {
         mLFLiveView = (CameraLivingView) findViewById(R.id.liveView);
         mFlashBtn = (MultiToggleImageButton) findViewById(R.id.camera_flash_button);
         mFaceBtn = (MultiToggleImageButton) findViewById(R.id.camera_switch_button);
+        midBtn = (MultiToggleImageButton) findViewById(R.id.id_button);
         mRecordBtn = (ImageButton) findViewById(R.id.btnRecord);
         mProgressConnecting = (ProgressBar) findViewById(R.id.progressConnecting);
     }
@@ -240,6 +241,12 @@ public class LandscapeActivity extends Activity {
             @Override
             public void stateChanged(View view, int state) {
                 mLFLiveView.switchCamera();
+            }
+        });
+        midBtn.setOnStateChangeListener(new MultiToggleImageButton.OnStateChangeListener(){
+            public void stateChanged(View view, int state) {
+                mUploadDialog.setCanceledOnTouchOutside(false);
+                mUploadDialog.show();
             }
         });
         mRecordBtn.setOnClickListener(new View.OnClickListener() {
@@ -309,11 +316,6 @@ public class LandscapeActivity extends Activity {
                         mUploadDialog.dismiss();
                     }
                 });
-
-
-
-                //开启状态查询
-                createSchedulePool();
             }
         });
         cancelBtn.setOnClickListener(new View.OnClickListener() {
@@ -326,7 +328,6 @@ public class LandscapeActivity extends Activity {
                         mUploadDialog.dismiss();
                     }
                 });                //开启状态查询
-                createSchedulePool();
             }
         });
     }
@@ -339,6 +340,10 @@ public class LandscapeActivity extends Activity {
         isRecording = false;
     }
     private void startLive(){
+        if(TextUtils.isEmpty(mid)) {
+            Toast.makeText(LandscapeActivity.this, "mid未赋值，无法推流", Toast.LENGTH_SHORT).show();
+            return;
+        }
         String uploadUrl = "rtmp://114.247.187.137:1935/live/"+mid;
         Log.i("mid","url:"+uploadUrl);
         Toast.makeText(LandscapeActivity.this,uploadUrl, Toast.LENGTH_SHORT).show();
