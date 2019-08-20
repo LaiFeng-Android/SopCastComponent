@@ -14,15 +14,25 @@
         android:layout_height="wrap_content"
         android:textSize="14dp"
         android:hint="车牌数字（0-100）"/>
+
     <EditText
         android:id="@+id/resolution"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginTop="30dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14dp"
-        android:hint="分辨率（540，720，1080），不填默认540"/>
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="15dp"
+        android:hint="分辨率（540，720，1080），不填默认540"
+        android:textSize="14dp" />
+
+    <Switch
+        android:id="@+id/switchOrientation"
+        android:layout_width="102dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="15dp"
+        android:text="打开横屏" />
 
     <LinearLayout
         android:orientation="horizontal"
@@ -36,9 +46,9 @@
         <Button
             android:id="@+id/cancel"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Cancel"/>
+            android:text="Cancel" />
 
         <Button
             android:id="@+id/ok"

@@ -19,9 +19,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.Toast;
 import android.view.WindowManager;
 import android.util.Log;
@@ -79,7 +81,7 @@ public class LandscapeActivity extends Activity {
     private MultiToggleImageButton mFlashBtn;
     private MultiToggleImageButton mFaceBtn;
     private MultiToggleImageButton midBtn;
-    private MultiToggleImageButton mOrientationBtn;
+    private Switch mOrientationSwitch;
     private GestureDetector mGestureDetector;
     private GrayEffect mGrayEffect;
     private NullEffect mNullEffect;
@@ -123,12 +125,16 @@ public class LandscapeActivity extends Activity {
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        if(getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+        SharedPreferences pref = getSharedPreferences("data",MODE_PRIVATE);
+        boolean PORTRAIT = pref.getBoolean("portrait",false);
+        if(!PORTRAIT)
         {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             setContentView(R.layout.activity_landscape);
         }
-        else if(getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        else
         {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             setContentView(R.layout.activity_portrait);
 
         }
@@ -176,7 +182,9 @@ public class LandscapeActivity extends Activity {
         initListeners();
         initLiveView();
         initRtmpAddressDialog();
+        loadLiveViewConfig();
 
+        //初始化推流地址
         SharedPreferences pref = getSharedPreferences("data",MODE_PRIVATE);
         mid = pref.getString("id","");
         mPublishUrl = pref.getString("url","rtmp://114.247.187.137:1935/live_540/");
@@ -201,7 +209,6 @@ public class LandscapeActivity extends Activity {
         mFlashBtn = (MultiToggleImageButton) findViewById(R.id.camera_flash_button);
         mFaceBtn = (MultiToggleImageButton) findViewById(R.id.camera_switch_button);
         midBtn = (MultiToggleImageButton) findViewById(R.id.id_button);
-        mOrientationBtn = (MultiToggleImageButton) findViewById(R.id.id_orientation_button);
         mRecordBtn = (ImageButton) findViewById(R.id.btnRecord);
         mProgressConnecting = (ProgressBar) findViewById(R.id.progressConnecting);
     }
@@ -262,19 +269,6 @@ public class LandscapeActivity extends Activity {
                 mUploadDialog.show();
             }
         });
-        mOrientationBtn.setOnStateChangeListener(new MultiToggleImageButton.OnStateChangeListener() {
-            @Override
-            public void stateChanged(View view, int state) {
-                if(getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-                {
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                }
-                 else if(getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-                {
-                   setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                }
-            }
-        });
         mRecordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -292,12 +286,14 @@ public class LandscapeActivity extends Activity {
         View playView = inflater.inflate(R.layout.address_dialog,(ViewGroup) findViewById(R.id.dialog));
         mAddressET = (EditText) playView.findViewById(R.id.address);
         msolution = (EditText) playView.findViewById(R.id.resolution);
+        mOrientationSwitch = (Switch) playView.findViewById(R.id.switchOrientation);
         Button okBtn = (Button) playView.findViewById(R.id.ok);
         Button cancelBtn = (Button) playView.findViewById(R.id.cancel);
         AlertDialog.Builder uploadBuilder = new AlertDialog.Builder(this);
         uploadBuilder.setTitle("请输入车号ID:");
         uploadBuilder.setView(playView);
         mUploadDialog = uploadBuilder.create();
+
         okBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -308,74 +304,28 @@ public class LandscapeActivity extends Activity {
                 }
                 //初始化参数
                 mresolution = msolution.getText().toString();
-
-                if(getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-                {
-                    if(mresolution.compareTo("1080")==0){
-                        VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-                        videoBuilder.setSize(1920, 1080).setBps(900,1800);
-                        mVideoConfiguration = videoBuilder.build();
-                        mLFLiveView.setVideoConfiguration(mVideoConfiguration);
-0
-                        mRtmpSender.setVideoParams(1920, 1080);
-
-                        mPublishUrl = "rtmp://114.247.187.137:1935/live/";
-                    }else if (mresolution.compareTo("720")==0){
-                        VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-                        videoBuilder.setSize(1280, 720).setBps(600,1600);
-                        mVideoConfiguration = videoBuilder.build();
-                        mLFLiveView.setVideoConfiguration(mVideoConfiguration);
-
-                        mRtmpSender.setVideoParams(1280, 720);
-
-                        mPublishUrl = "rtmp://114.247.187.137:1935/live_720_convert/";
-                    }else{
-                        Toast.makeText(LandscapeActivity.this, "默认用540", Toast.LENGTH_SHORT).show();
-                        VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-                        videoBuilder.setSize(960, 540).setBps(450,1200);
-                        mVideoConfiguration = videoBuilder.build();
-                        mLFLiveView.setVideoConfiguration(mVideoConfiguration);
-
-                        mRtmpSender.setVideoParams(960, 540);
-
-                        mPublishUrl = "rtmp://114.247.187.137:1935/live_540/";
-                    }
-                }else if(getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT){
-                    if(mresolution.compareTo("1080")==0){
-                        VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-                        videoBuilder.setSize(1080, 1920).setBps(900,1800);
-                        mVideoConfiguration = videoBuilder.build();
-                        mLFLiveView.setVideoConfiguration(mVideoConfiguration);
-
-                        mRtmpSender.setVideoParams(1080, 1920);
-
-                        mPublishUrl = "rtmp://114.247.187.137:1935/live_portrait_1080p/";
-                    }else if (mresolution.compareTo("720")==0){
-                        VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-                        videoBuilder.setSize(720, 1280).setBps(600,1600);
-                        mVideoConfiguration = videoBuilder.build();
-                        mLFLiveView.setVideoConfiguration(mVideoConfiguration);
-
-                        mRtmpSender.setVideoParams(720, 1280);
-
-                        mPublishUrl = "rtmp://114.247.187.137:1935/live_portrait_720p/";
-                    }else{
-                        Toast.makeText(LandscapeActivity.this, "默认用540", Toast.LENGTH_SHORT).show();
-                        VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-                        videoBuilder.setSize(540, 960).setBps(450,1200);
-                        mVideoConfiguration = videoBuilder.build();
-                        mLFLiveView.setVideoConfiguration(mVideoConfiguration);
-
-                        mRtmpSender.setVideoParams(540, 960);
-
-                        mPublishUrl = "rtmp://114.247.187.137:1935/live_540/";
-                    }
+                if(TextUtils.isEmpty(mresolution)) {
+                    mresolution = "540";
                 }
 
+                if(!mOrientationSwitch.isChecked())
+                {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                }else{
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                }
 
                 //持久化
                 SharedPreferences.Editor editor = getSharedPreferences("data",MODE_PRIVATE).edit();
                 editor.putString("id",mid);
+                editor.putString("resolution",mresolution);
+                editor.putBoolean("portrait",mOrientationSwitch.isChecked());
+                editor.apply();
+
+                //这里需要重新导入数据
+                loadLiveViewConfig();
+
+                editor = getSharedPreferences("data",MODE_PRIVATE).edit();
                 editor.putString("url",mPublishUrl);
                 editor.apply();
 
@@ -444,18 +394,6 @@ public class LandscapeActivity extends Activity {
         CameraConfiguration cameraConfiguration = cameraBuilder.build();
         mLFLiveView.setCameraConfiguration(cameraConfiguration);
 
-        VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-        if(getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-        {
-            videoBuilder.setSize(960, 540).setBps(450,1200);
-        }
-        else if(getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-        {
-            videoBuilder.setSize(540, 960).setBps(450,1200);
-        }
-        mVideoConfiguration = videoBuilder.build();
-        mLFLiveView.setVideoConfiguration(mVideoConfiguration);
-
 //        //设置水印
 //        Bitmap watermarkImg = BitmapFactory.decodeResource(getResources(), R.mipmap.watermark);
 //        Watermark watermark = new Watermark(watermarkImg, 50, 25, WatermarkPosition.WATERMARK_ORIENTATION_BOTTOM_RIGHT, 8, 8);
@@ -495,15 +433,6 @@ public class LandscapeActivity extends Activity {
         mLFLiveView.setPacker(packer);
         //设置发送器
         mRtmpSender = new RtmpSender();
-        if(getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-        {
-            mRtmpSender.setVideoParams(960, 540);
-        }
-        else if(getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-        {
-            mRtmpSender.setVideoParams(540, 960);
-
-        }
         mRtmpSender.setAudioParams(AudioConfiguration.DEFAULT_FREQUENCY, 16, false);
         mRtmpSender.setSenderListener(mSenderListener);
         mLFLiveView.setSender(mRtmpSender);
@@ -521,6 +450,74 @@ public class LandscapeActivity extends Activity {
                 Toast.makeText(LandscapeActivity.this, "开始直播,id号:"+mid+",地址:"+mPublishUrl, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void loadLiveViewConfig(){
+        SharedPreferences pref = getSharedPreferences("data",MODE_PRIVATE);
+        boolean PORTRAIT = pref.getBoolean("portrait",false);
+        mresolution  = pref.getString("resolution","540");
+
+        if(!PORTRAIT)
+        {
+            if(mresolution.compareTo("1080")==0){
+                VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
+                videoBuilder.setSize(1920, 1080).setBps(900,1800);
+                mVideoConfiguration = videoBuilder.build();
+                mLFLiveView.setVideoConfiguration(mVideoConfiguration);
+                mRtmpSender.setVideoParams(1920, 1080);
+
+                mPublishUrl = "rtmp://114.247.187.137:1935/live/";
+            }else if (mresolution.compareTo("720")==0){
+                VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
+                videoBuilder.setSize(1280, 720).setBps(600,1600);
+                mVideoConfiguration = videoBuilder.build();
+                mLFLiveView.setVideoConfiguration(mVideoConfiguration);
+
+                mRtmpSender.setVideoParams(1280, 720);
+
+                mPublishUrl = "rtmp://114.247.187.137:1935/live_720_convert/";
+            }else{
+                Toast.makeText(LandscapeActivity.this, "默认用540", Toast.LENGTH_SHORT).show();
+                VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
+                videoBuilder.setSize(960, 540).setBps(450,1200);
+                mVideoConfiguration = videoBuilder.build();
+                mLFLiveView.setVideoConfiguration(mVideoConfiguration);
+
+                mRtmpSender.setVideoParams(960, 540);
+
+                mPublishUrl = "rtmp://114.247.187.137:1935/live_540/";
+            }
+        }else{
+            if(mresolution.compareTo("1080")==0){
+                VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
+                videoBuilder.setSize(1080, 1920).setBps(900,1800);
+                mVideoConfiguration = videoBuilder.build();
+                mLFLiveView.setVideoConfiguration(mVideoConfiguration);
+
+                mRtmpSender.setVideoParams(1080, 1920);
+
+                mPublishUrl = "rtmp://114.247.187.137:1935/live_portrait_1080p/";
+            }else if (mresolution.compareTo("720")==0){
+                VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
+                videoBuilder.setSize(720, 1280).setBps(600,1600);
+                mVideoConfiguration = videoBuilder.build();
+                mLFLiveView.setVideoConfiguration(mVideoConfiguration);
+
+                mRtmpSender.setVideoParams(720, 1280);
+
+                mPublishUrl = "rtmp://114.247.187.137:1935/live_portrait_720p/";
+            }else{
+                Toast.makeText(LandscapeActivity.this, "默认用540", Toast.LENGTH_SHORT).show();
+                VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
+                videoBuilder.setSize(540, 960).setBps(450,1200);
+                mVideoConfiguration = videoBuilder.build();
+                mLFLiveView.setVideoConfiguration(mVideoConfiguration);
+
+                mRtmpSender.setVideoParams(540, 960);
+
+                mPublishUrl = "rtmp://114.247.187.137:1935/live_540/";
+            }
+        }
     }
 
     private RtmpSender.OnSenderListener mSenderListener = new RtmpSender.OnSenderListener() {
