@@ -22,10 +22,6 @@
         android:clipToPadding="false"
         android:orientation="horizontal">
         <com.laifeng.sopcastdemo.ui.MultiToggleImageButton
-            android:id="@+id/record_mic_button"
-            style="@style/NiceOption"
-            app:imageIds="@array/record_mic_icons" />
-        <com.laifeng.sopcastdemo.ui.MultiToggleImageButton
             android:id="@+id/camera_flash_button"
             style="@style/NiceOption"
             app:imageIds="@array/camera_flashmode_icons" />
@@ -34,13 +30,13 @@
             style="@style/NiceOption"
             app:imageIds="@array/camera_id_icons" />
         <com.laifeng.sopcastdemo.ui.MultiToggleImageButton
-            android:id="@+id/camera_focus_button"
-            style="@style/NiceOption"
-            app:imageIds="@array/camera_focus_icons" />
-        <com.laifeng.sopcastdemo.ui.MultiToggleImageButton
-            android:id="@+id/camera_render_button"
+            android:id="@+id/id_button"
             style="@style/NiceOption"
             app:imageIds="@array/camera_render_icons" />
+        <com.laifeng.sopcastdemo.ui.MultiToggleImageButton
+            android:id="@+id/id_orientation_button"
+            style="@style/NiceOption"
+            app:imageIds="@array/camera_focus_icons" />
     </com.laifeng.sopcastdemo.ui.TopRightWeightedLayout>
 
     <LinearLayout
@@ -57,4 +53,13 @@
             android:layout_height="60dp"
             android:background="@mipmap/ic_record_start" />
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressConnecting"
+        style="?android:progressBarStyleSmall"
+        android:layout_width="30dip"
+        android:layout_height="30dip"
+        android:layout_centerInParent="true"
+        android:visibility="gone"/>
+
 </RelativeLayout>
