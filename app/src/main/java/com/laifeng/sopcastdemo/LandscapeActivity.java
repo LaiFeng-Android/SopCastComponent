@@ -466,7 +466,7 @@ public class LandscapeActivity extends Activity {
                 mLFLiveView.setVideoConfiguration(mVideoConfiguration);
                 mRtmpSender.setVideoParams(1920, 1080);
 
-                mPublishUrl = "rtmp://114.247.187.137:1935/live/";
+                mPublishUrl = "rtmp://114.247.187.137:1935/live_landscape_1080p/";
             }else if (mresolution.compareTo("720")==0){
                 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
                 videoBuilder.setSize(1280, 720).setBps(600,1600);
