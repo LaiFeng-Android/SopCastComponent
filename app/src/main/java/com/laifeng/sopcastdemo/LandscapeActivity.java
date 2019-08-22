@@ -97,6 +97,7 @@ public class LandscapeActivity extends Activity {
     private EditText msolution;
     private String mid;
     private String mresolution;
+    private boolean mProtait;
     private String mStatus;
     private String mPublishUrl;
 
@@ -190,7 +191,6 @@ public class LandscapeActivity extends Activity {
         mPublishUrl = pref.getString("url","rtmp://114.247.187.137:1935/live_540/");
         if(TextUtils.isEmpty(mid)) {
             mUploadDialog.setCanceledOnTouchOutside(false);
-            Log.i("Dialog","dialog show");
             mUploadDialog.show();
         }
 
@@ -266,7 +266,11 @@ public class LandscapeActivity extends Activity {
         midBtn.setOnStateChangeListener(new MultiToggleImageButton.OnStateChangeListener(){
             public void stateChanged(View view, int state) {
                 mUploadDialog.setCanceledOnTouchOutside(false);
+                mAddressET.setText(mid);
+                msolution.setText(mresolution);
+                mOrientationSwitch.setChecked(mProtait);
                 mUploadDialog.show();
+
             }
         });
         mRecordBtn.setOnClickListener(new View.OnClickListener() {
@@ -310,8 +314,10 @@ public class LandscapeActivity extends Activity {
 
                 if(!mOrientationSwitch.isChecked())
                 {
+                    mProtait = false;
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 }else{
+                    mProtait = true;
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                 }
 
@@ -454,10 +460,10 @@ public class LandscapeActivity extends Activity {
 
     private void loadLiveViewConfig(){
         SharedPreferences pref = getSharedPreferences("data",MODE_PRIVATE);
-        boolean PORTRAIT = pref.getBoolean("portrait",false);
+        mProtait = pref.getBoolean("portrait",false);
         mresolution  = pref.getString("resolution","540");
 
-        if(!PORTRAIT)
+        if(mProtait)
         {
             if(mresolution.compareTo("1080")==0){
                 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
