@@ -6,10 +6,20 @@
     android:layout_height="wrap_content">
 
     <EditText
+        android:id="@+id/ip"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14dp"
+        android:hint="可配置推流地址，默认为114.247.187.137:1935"/>
+
+    <EditText
         android:id="@+id/address"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="14dp"
@@ -20,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="15dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="5dp"
         android:layout_marginRight="15dp"
         android:hint="分辨率（540，720，1080），不填默认540"
         android:textSize="14dp" />
@@ -30,9 +40,9 @@
         android:layout_width="102dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="15dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="5dp"
         android:layout_marginRight="15dp"
-        android:text="打开横屏" />
+        android:text="打开竖屏" />
 
     <LinearLayout
         android:orientation="horizontal"
