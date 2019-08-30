@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="14dp"
-        android:hint="可配置推流地址，默认为114.247.187.137"/>
+        android:hint="可配置推流地址，默认为123.124.164.142"/>
 
     <EditText
         android:id="@+id/address"

@@ -104,7 +104,7 @@ public class LandscapeActivity extends Activity {
     private EditText mipEditText;
     private String mip;
 
-    final String defaultIP = "114.247.187.137";
+    final String defaultIP = "123.124.164.142";
 
     private Handler cameraHandler = new Handler(){
     @Override
