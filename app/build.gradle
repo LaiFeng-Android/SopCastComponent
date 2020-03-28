@@ -25,6 +25,20 @@ android {
         }
     }
     useLibrary 'org.apache.http.legacy'
+
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
+    android.applicationVariants.all {
+        variant ->
+            variant.outputs.all {
+                //这里修改apk文件名
+                outputFileName = "drillLive-${variant.name}-v${variant.versionName}.apk"
+            }
+    }
 }
 
 dependencies {
