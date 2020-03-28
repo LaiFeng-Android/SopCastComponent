@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.laifeng.sopcastdemo.ui;
+package com.drill.liveDemo.ui;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -31,7 +31,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageButton;
 
-import com.laifeng.sopcastdemo.R;
+import com.drill.liveDemo.R;
 
 /*
  * A toggle button that supports two or more states with images rendererd on top

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.laifeng.sopcastdemo.ui;
+package com.drill.liveDemo.ui;
 
 import android.content.Context;
 import android.content.res.Configuration;

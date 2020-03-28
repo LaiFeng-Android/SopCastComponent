@@ -1,4 +1,4 @@
-package com.laifeng.sopcastdemo;
+package com.drill.liveDemo;
 
 import android.Manifest;
 import android.app.Activity;
@@ -29,7 +29,7 @@ import android.view.WindowManager;
 import android.util.Log;
 import android.os.Build;
 
-import com.laifeng.sopcastdemo.ui.MultiToggleImageButton;
+import com.drill.liveDemo.ui.MultiToggleImageButton;
 import com.laifeng.sopcastsdk.camera.CameraListener;
 import com.laifeng.sopcastsdk.configuration.AudioConfiguration;
 import com.laifeng.sopcastsdk.configuration.CameraConfiguration;

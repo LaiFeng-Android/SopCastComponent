@@ -5,14 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff"
-    tools:context="com.laifeng.sopcastdemo.MainActivity">
+    tools:context="com.drill.liveDemo.MainActivity">
 
     <com.laifeng.sopcastsdk.ui.CameraLivingView
         android:id="@+id/liveView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <com.laifeng.sopcastdemo.ui.TopRightWeightedLayout
+    <com.drill.liveDemo.ui.TopRightWeightedLayout
         android:layout_width="75dp"
         android:layout_height="match_parent"
         android:gravity="center"
@@ -22,19 +22,19 @@
         android:clipToPadding="false"
         android:orientation="vertical">
 
-        <com.laifeng.sopcastdemo.ui.MultiToggleImageButton
+        <com.drill.liveDemo.ui.MultiToggleImageButton
             android:id="@+id/camera_flash_button"
             style="@style/NiceOption"
             app:imageIds="@array/camera_flashmode_icons" />
-        <com.laifeng.sopcastdemo.ui.MultiToggleImageButton
+        <com.drill.liveDemo.ui.MultiToggleImageButton
             android:id="@+id/camera_switch_button"
             style="@style/NiceOption"
             app:imageIds="@array/camera_id_icons" />
-        <com.laifeng.sopcastdemo.ui.MultiToggleImageButton
+        <com.drill.liveDemo.ui.MultiToggleImageButton
             android:id="@+id/id_button"
             style="@style/NiceOption"
             app:imageIds="@array/camera_render_icons" />
-    </com.laifeng.sopcastdemo.ui.TopRightWeightedLayout>
+    </com.drill.liveDemo.ui.TopRightWeightedLayout>
 
     <LinearLayout
         android:layout_width="100dp"
