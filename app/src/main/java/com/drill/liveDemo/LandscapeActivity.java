@@ -3,11 +3,15 @@ package com.drill.liveDemo;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -229,6 +233,8 @@ public class LandscapeActivity extends Activity {
             public void run() {
                 //获得电量信息
                 getBarryInfo();
+                //获得网络状态信息
+                getNetInfo();
             }
         }, 1, 3, TimeUnit.SECONDS);
     }
@@ -237,7 +243,32 @@ public class LandscapeActivity extends Activity {
         BatteryManager manager = (BatteryManager) getSystemService(BATTERY_SERVICE);
         int value =manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
         Log.d("battery",String.format("battery info:%d",value));
+    }
 
+    private void getNetInfo(){
+        //获得ConnectivityManager对象
+        Context context = getApplicationContext();
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);        //获取所有网络连接的信息
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            Network[] networks = connectivityManager.getAllNetworks();
+            if (networks != null && networks.length > 0) {
+                int size = networks.length;
+                for (int i=0; i<size; i++) {
+                    Log.d("TAG", "=====状态====" + connectivityManager.getNetworkInfo(networks[i]).getState());
+                    Log.d("TAG", "=====类型====" + connectivityManager.getNetworkInfo(networks[i]).getTypeName());
+
+                }
+            }
+        } else {
+            NetworkInfo[] networkInfos = connectivityManager.getAllNetworkInfo();
+            if (networkInfos != null && networkInfos.length > 0) {
+                int size = networkInfos.length;
+                for (int i=0; i<size; i++) {
+                    Log.d("TAG", "=====状态====" + networkInfos[i].getState());
+                    Log.d("TAG", "=====类型====" + networkInfos[i].getTypeName());
+                }
+            }
+        }
     }
 
     private void createSchedulePool(){
