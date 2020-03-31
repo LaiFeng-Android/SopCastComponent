@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -201,6 +202,9 @@ public class LandscapeActivity extends Activity {
 
         //根据远端状态来判断
         createSchedulePool();
+
+        //资源上报池
+        createUploadPool();
     }
 
     private void initEffects() {
@@ -216,6 +220,24 @@ public class LandscapeActivity extends Activity {
         midBtn = (MultiToggleImageButton) findViewById(R.id.id_button);
         mRecordBtn = (ImageButton) findViewById(R.id.btnRecord);
         mProgressConnecting = (ProgressBar) findViewById(R.id.progressConnecting);
+    }
+
+    private void createUploadPool(){
+        ScheduledExecutorService uploadThreadPool = Executors.newScheduledThreadPool(5);
+        uploadThreadPool.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                //获得电量信息
+                getBarryInfo();
+            }
+        }, 1, 3, TimeUnit.SECONDS);
+    }
+
+    private void getBarryInfo(){
+        BatteryManager manager = (BatteryManager) getSystemService(BATTERY_SERVICE);
+        int value =manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+        Log.d("battery",String.format("battery info:%d",value));
+
     }
 
     private void createSchedulePool(){
