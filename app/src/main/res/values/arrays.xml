@@ -40,4 +40,9 @@
         <item>@drawable/ic_render_on</item>
         <item>@drawable/ic_render_off</item>
     </array>
+
+    <array name="gps_icons" translatable="false">
+        <item>@drawable/gps_off</item>
+        <item>@drawable/gps_on</item>
+    </array>
 </resources>
