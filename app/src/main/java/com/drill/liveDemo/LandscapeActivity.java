@@ -20,6 +20,7 @@ import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -72,6 +73,7 @@ import org.json.JSONObject;
 
 import android.os.Handler;
 import android.os.Message;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -85,6 +87,7 @@ import org.apache.http.util.EntityUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.*;
 import org.apache.http.impl.client.*;
+
 import android.content.pm.PackageManager;
 
 import com.drill.liveDemo.baiduGps.LocationService;
@@ -126,48 +129,52 @@ public class LandscapeActivity extends Activity {
 
     final String defaultIP = "123.124.164.142";
 
-//    private GPSService mGpsService;
+    private String mdeviceID;
+
+    //    private GPSService mGpsService;
     private LocationService mlocationService;
     private boolean mGpsStarted;
 
-    private Handler cameraHandler = new Handler(){
-    @Override
-    public void handleMessage(Message msg) {
-        switch(msg.what){
-        case 0://切换摄像头
-            mLFLiveView.switchCamera();
-            break;
-        case 1://切换推拉流状态
-            if(isRecording) {
-                stopLive();
-            } else {
-                startLive();
+    private Handler cameraHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0://切换摄像头
+                    mLFLiveView.switchCamera();
+                    break;
+                case 1://切换推拉流状态
+                    if (isRecording) {
+                        stopLive();
+                    } else {
+                        startLive();
+                    }
+                    break;
+                default:
+                    break;
             }
-            break;
-        default:
-            break;
         }
-    }
     };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        SharedPreferences pref = getSharedPreferences("data",MODE_PRIVATE);
-        boolean PORTRAIT = pref.getBoolean("portrait",false);
-        if(!PORTRAIT)
-        {
+
+
+        SharedPreferences pref = getSharedPreferences("data", MODE_PRIVATE);
+        boolean PORTRAIT = pref.getBoolean("portrait", false);
+        if (!PORTRAIT) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             setContentView(R.layout.activity_landscape);
-        }
-        else
-        {
+        } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             setContentView(R.layout.activity_portrait);
 
         }
+
         getPermission();
 
         mGpsStarted = false;
@@ -178,6 +185,16 @@ public class LandscapeActivity extends Activity {
         //获取locationservice实例，建议应用中只初始化1个location实例，然后使用，可以参考其他示例的activity，都是通过此种方式获取locationservice实例的
         mlocationService.registerListener(mListener);
         mlocationService.setLocationOption(mlocationService.getDefaultLocationClientOption());
+        /***
+         * 设备ID号
+         */
+        TelephonyManager tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mdeviceID = tm.getDeviceId().toString();
+        Log.d(TAG,String.format("deviceID:%s",mdeviceID));
+
     }
 
     private BDAbstractLocationListener mListener = new BDAbstractLocationListener() {
@@ -364,7 +381,8 @@ public class LandscapeActivity extends Activity {
                                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                 Manifest.permission.RECORD_AUDIO,
                                 Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACCESS_FINE_LOCATION
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.READ_PHONE_STATE
                         },1);
             }else {
                 //说明已经获取到摄像头权限了
@@ -383,6 +401,7 @@ public class LandscapeActivity extends Activity {
         switch (requestCode) {
             case 1: {
                 Log.i("MainActivity","dialog权限回调");
+                init();
                 }
                 return;
             }
@@ -903,13 +922,16 @@ public class LandscapeActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        mLFLiveView.pause();
+        if(mLFLiveView!=null)
+            mLFLiveView.pause();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mLFLiveView.resume();
+        if(mLFLiveView!=null){
+            mLFLiveView.resume();
+        }
     }
 
     @Override
