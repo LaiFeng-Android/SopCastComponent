@@ -22,6 +22,11 @@
         android:clipToPadding="false"
         android:orientation="vertical">
 
+        <ImageButton
+            android:id="@+id/backBtn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@mipmap/back" />
         <com.drill.liveDemo.ui.MultiToggleImageButton
             android:id="@+id/camera_flash_button"
             style="@style/NiceOption"

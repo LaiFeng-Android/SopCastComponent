@@ -22,12 +22,14 @@
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="R15qdlTCD8OIKlwcMsUiZmDpodFIaDEn" /> <!-- http://lbsyun.baidu.com/apiconsole/key -->
 
-        <activity android:name=".LandscapeActivity" android:screenOrientation="landscape">
+        <activity android:name=".MainActivity" android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".LandscapeActivity"
+            android:screenOrientation="landscape"/>
         <service
             android:name=".ui.GPSService"
             android:enabled="true"

@@ -104,6 +104,7 @@ public class LandscapeActivity extends Activity {
     private MultiToggleImageButton mFaceBtn;
     private MultiToggleImageButton midBtn;
     private MultiToggleImageButton mgpsBtn;
+    private ImageButton mbackBtn;
     private Switch mOrientationSwitch;
     private GestureDetector mGestureDetector;
     private GrayEffect mGrayEffect;
@@ -448,6 +449,7 @@ public class LandscapeActivity extends Activity {
         midBtn = (MultiToggleImageButton) findViewById(R.id.id_button);
         mgpsBtn = (MultiToggleImageButton) findViewById(R.id.id_gps);
         mRecordBtn = (ImageButton) findViewById(R.id.btnRecord);
+        mbackBtn = (ImageButton) findViewById(R.id.backBtn);
         mProgressConnecting = (ProgressBar) findViewById(R.id.progressConnecting);
     }
 
@@ -585,6 +587,12 @@ public class LandscapeActivity extends Activity {
                 } else {
                     startLive();
                 }
+            }
+        });
+        mbackBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LandscapeActivity.this.finish();
             }
         });
     }
