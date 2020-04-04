@@ -1,1 +1,1 @@
-include ':app', ':sopcast-sdk'
+include ':app', ':sopcast-sdk',":zxinglibrary"

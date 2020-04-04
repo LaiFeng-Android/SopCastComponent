@@ -1,0 +1,12 @@
+<resources>
+    <string name="zxing_app_name">Zxing Library</string>
+    <!--zxing-->
+    <string name="msg_camera_framework_bug">The camera is occupied or has no camera permission, please check</string>
+    <string name="button_ok">Exit</string>
+    <string name="scan_code">Scan QR Code</string>
+    <string name="open_flash">Turn on the flash</string>
+    <string name="close_flash">Turn off the flash</string>
+    <string name="gallery">Gallery</string>
+    <string name="scan_failed_tip">Scan image failed, please retry.</string>
+
+</resources>
