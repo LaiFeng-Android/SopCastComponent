@@ -76,6 +76,7 @@ import android.os.Message;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpEntity;
@@ -139,9 +140,15 @@ public class LandscapeActivity extends Activity {
     private String mlocationType;//定位类型
     private float mDirection;//方向
 
-    //    private GPSService mGpsService;
+    //动态配置信息
+    private int mInterval;//上报间隔时间
+
     private LocationService mlocationService;
     private boolean mGpsStarted;
+
+    private ScheduledExecutorService scheduleExecutor;
+    private ScheduledFuture<?> scheduleManager;
+    private Runnable timeTask;
 
     private Handler cameraHandler = new Handler() {
         @Override
@@ -156,6 +163,18 @@ public class LandscapeActivity extends Activity {
                     } else {
                         startLive();
                     }
+                    break;
+                case 2://间隔时间
+                    changeInterval(msg.arg1);
+                    break;
+                case 3://车牌号
+                    changeCarId((String)msg.obj);
+                    break;
+                case 4://清晰度
+                    changeResolution((String)msg.obj);
+                    break;
+                case 5:
+                    changeIp((String)msg.obj);
                     break;
                 default:
                     break;
@@ -203,6 +222,8 @@ public class LandscapeActivity extends Activity {
         mdeviceTime ="";//gps时间
         mlocationType ="";//定位类型
         mDirection = 0;//方向
+
+        mInterval = 10;//上报时间
         /***
          * 初始化定位sdk，建议在Application中创建
          */
@@ -225,18 +246,18 @@ public class LandscapeActivity extends Activity {
             // TODO Auto-generated method stub
             if (null != location && location.getLocType() != BDLocation.TypeServerError)
             {
-               mlongitude=location.getLongitude();
-               mlatitude=location.getLatitude();
-               mdeviceTime =location.getTime();
-               if (location.getLocType() == BDLocation.TypeGpsLocation){
-                   mlocationType="GPS定位";
-               }else if(location.getLocType() == BDLocation.TypeNetWorkLocation){
-                   mlocationType="网络定位";
-               }else if (location.getLocType() == BDLocation.TypeOffLineLocation){
-                   mlocationType="离线定位";
-               }
-               mDirection=location.getDirection();
-            }
+                    mlongitude=location.getLongitude();
+                    mlatitude=location.getLatitude();
+                    mdeviceTime =location.getTime();
+                    if (location.getLocType() == BDLocation.TypeGpsLocation){
+                        mlocationType="GPS定位";
+                    }else if(location.getLocType() == BDLocation.TypeNetWorkLocation){
+                        mlocationType="网络定位";
+                    }else if (location.getLocType() == BDLocation.TypeOffLineLocation){
+                        mlocationType="离线定位";
+                    }
+                    mDirection=location.getDirection();
+                }
 //            {
 //                int tag = 1;
 //                StringBuffer sb = new StringBuffer(256);
@@ -483,8 +504,8 @@ public class LandscapeActivity extends Activity {
     }
 
     private void createUploadPool(){
-        ScheduledExecutorService uploadThreadPool = Executors.newScheduledThreadPool(5);
-        uploadThreadPool.scheduleAtFixedRate(new Runnable() {
+        scheduleExecutor = Executors.newScheduledThreadPool(5);
+        timeTask = new Runnable() {
             @Override
             public void run() {
                 //获得电量信息
@@ -494,7 +515,8 @@ public class LandscapeActivity extends Activity {
                 //上报
                 uploadInfo();
             }
-        }, 1, 10, TimeUnit.SECONDS);
+        };
+        scheduleManager = scheduleExecutor.scheduleAtFixedRate(timeTask, 1, mInterval, TimeUnit.SECONDS);
     }
 
     private void getBarryInfo(){
@@ -547,18 +569,50 @@ public class LandscapeActivity extends Activity {
                         for(int i=0;i<jsonArray.length();i++) {
                             JSONObject jsonObject=(JSONObject)jsonArray.get(i);
                             String id=jsonObject.getString("id");
-                            if(id.compareTo(mid)==0){//找到车辆
+                            if(id.compareTo(mdeviceID)==0){//通过设备标识符找到
                                 //摄像头控制
                                 int facing=jsonObject.getInt("cameraPosition");
                                 int cameraNow = mLFLiveView.getCameraData().cameraFacing;
                                 Log.d("camera",String.format("cameraid:%d",cameraNow));
                                 if(facing != cameraNow){
-                                    cameraHandler.sendEmptyMessage(0);//0切换摄像头
+                                    cameraHandler.sendEmptyMessage(0);
                                 }
                                 //推流状态
                                 boolean cRecord = jsonObject.getBoolean("pushStatus");
                                 if(cRecord != isRecording)
-                                    cameraHandler.sendEmptyMessage(1);//1切换推流状态
+                                    cameraHandler.sendEmptyMessage(1);
+                                //间隔时间
+                                int reportInterval = jsonObject.getInt("interval");
+                                if(reportInterval !=mInterval){
+                                    Message msg= new Message();
+                                    msg.what = 2;
+                                    msg.arg1 = reportInterval;
+                                    cameraHandler.sendMessage(msg);
+                                }
+                                //车牌号
+                                String carId = jsonObject.getString("id");
+                                if(carId != mid){
+                                    Message msg= new Message();
+                                    msg.what = 3;
+                                    msg.obj = carId;
+                                    cameraHandler.sendMessage(msg);
+                                }
+                                //清晰度
+                                String resolution = jsonObject.getString("resolution");
+                                if(resolution != mresolution){
+                                    Message msg= new Message();
+                                    msg.what = 4;
+                                    msg.obj = resolution;
+                                    cameraHandler.sendMessage(msg);
+                                }
+                                //推流地址
+                                String ip = jsonObject.getString("ip");
+                                if(ip != mip){
+                                    Message msg= new Message();
+                                    msg.what = 5;
+                                    msg.obj = ip;
+                                    cameraHandler.sendMessage(msg);
+                                }
                                 break;
                             }
                         }
@@ -710,6 +764,34 @@ public class LandscapeActivity extends Activity {
                 });                //开启状态查询
             }
         });
+    }
+
+    private void changeInterval(int newValue){
+        mInterval = newValue;
+        if (scheduleManager!= null)
+        {
+            scheduleManager.cancel(true);
+        }
+        scheduleManager = scheduleExecutor.scheduleAtFixedRate(timeTask, 1, mInterval, TimeUnit.SECONDS);
+    }
+
+    private void changeCarId(String carID){
+        mid = carID;
+        SharedPreferences.Editor editor = getSharedPreferences("data",MODE_PRIVATE).edit();
+        editor.putString("id",mid);
+        editor.apply();
+    }
+    private void changeResolution(String resolution){
+        mresolution = resolution;
+        SharedPreferences.Editor editor = getSharedPreferences("data",MODE_PRIVATE).edit();
+        editor.putString("resolution",mresolution);
+        editor.apply();
+    }
+    private void changeIp(String ip){
+        mip = ip;
+        SharedPreferences.Editor editor = getSharedPreferences("data",MODE_PRIVATE).edit();
+        editor.putString("ip",mresolution);
+        editor.apply();
     }
 
     private void stopLive(){
