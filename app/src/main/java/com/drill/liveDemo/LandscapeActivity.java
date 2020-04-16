@@ -187,6 +187,18 @@ public class LandscapeActivity extends Activity {
         super.onCreate(savedInstanceState);
 
 
+        mGpsStarted = false;
+        mStatus = "未推流";//当前状态
+        mNetWorkInfo = "无网络";//当前网络状态
+        mbattery = -1;//电池信息
+        mlongitude =0;//经度
+        mlatitude = 0;//纬度
+        mdeviceTime ="";//gps时间
+        mlocationType ="";//定位类型
+        mDirection = 0;//方向
+
+        mInterval = 10;//上报时间
+
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -213,17 +225,6 @@ public class LandscapeActivity extends Activity {
 
         getPermission();
 
-        mGpsStarted = false;
-        mStatus = "未推流";//当前状态
-        mNetWorkInfo = "无网络";//当前网络状态
-        mbattery = -1;//电池信息
-        mlongitude =0;//经度
-        mlatitude = 0;//纬度
-        mdeviceTime ="";//gps时间
-        mlocationType ="";//定位类型
-        mDirection = 0;//方向
-
-        mInterval = 10;//上报时间
         /***
          * 初始化定位sdk，建议在Application中创建
          */
@@ -241,7 +242,7 @@ public class LandscapeActivity extends Activity {
              * @param location 定位结果
              */
             @Override
-            public void onReceiveLocation(BDLocation location) {
+                public void onReceiveLocation(BDLocation location) {
 
             // TODO Auto-generated method stub
             if (null != location && location.getLocType() != BDLocation.TypeServerError)
@@ -1097,7 +1098,7 @@ public class LandscapeActivity extends Activity {
     {
         new Thread(new Runnable() {
             public void run() {
-                String uriAPI = "http://"+mip+"/api/updateDevicesStatus?deviceID=" + mdeviceID;
+                String uriAPI = "http://drli.urthe1.xyz:8080/api/updateDevicesStatus?deviceID=" + mdeviceID+"&streamID="+mid;
                 if(!TextUtils.isEmpty(mStatus)){
                     uriAPI += String.format("&appStatus=%s",mStatus);
                 }
@@ -1108,14 +1109,14 @@ public class LandscapeActivity extends Activity {
                     uriAPI += String.format("&battery=%d",mbattery);
                 }
                 if(mlongitude >0){
-                    uriAPI += String.format("&longitude=%ld",mlongitude);
+                    uriAPI += String.format("&longitude=%f",mlongitude);
                 }
                 if(mlatitude >0){
-                    uriAPI += String.format("&latitude=%ld",mlatitude);
+                    uriAPI += String.format("&latitude=%f",mlatitude);
                 }
-                if(!TextUtils.isEmpty(mdeviceTime)){
-                    uriAPI += String.format("&deviceTime=%s",mdeviceTime);
-                }
+//                if(!TextUtils.isEmpty(mdeviceTime)){
+//                    uriAPI += String.format("&deviceTime=%s",mdeviceTime);
+//                }
                 if(!TextUtils.isEmpty(mlocationType)){
                     uriAPI += String.format("&locationType=%s",mlocationType);
                 }
