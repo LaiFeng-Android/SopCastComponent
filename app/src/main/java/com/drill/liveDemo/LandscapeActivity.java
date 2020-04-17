@@ -174,11 +174,6 @@ public class LandscapeActivity extends Activity {
                 case 4://清晰度
                     changeResolution((String)msg.obj);
                     loadLiveViewConfig();
-                    if (isRecording) {
-                        //重启推流
-                        stopLive();
-                        startLive();
-                    }
                     break;
                 case 5:
                     changeIp((String)msg.obj);
@@ -209,15 +204,6 @@ public class LandscapeActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        /***
-         * 设备ID号
-         */
-        TelephonyManager tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        mdeviceID = tm.getDeviceId().toString();
-        Log.d(TAG,String.format("deviceID:%s",mdeviceID));
 
         //获取预设信息
         SharedPreferences pref = getSharedPreferences("data", MODE_PRIVATE);
@@ -231,6 +217,16 @@ public class LandscapeActivity extends Activity {
         }
 
         getPermission();
+
+        /***
+         * 设备ID号
+         */
+        TelephonyManager tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mdeviceID = tm.getDeviceId().toString();
+        Log.d(TAG,String.format("deviceID:%s",mdeviceID));
 
         /***
          * 初始化定位sdk，建议在Application中创建
@@ -616,8 +612,8 @@ public class LandscapeActivity extends Activity {
                                         resolution = "540";
                                     }else if(resolution.compareTo(" 720P")==0){
                                         resolution = "720";
-                                    }else if(resolution.compareTo("1080P")==0){
-                                        resolution = "1280";
+                                    }else if(resolution.compareTo(" 1080P")==0){
+                                        resolution = "1080";
                                     }
                                     if(resolution != mresolution){
                                         Message msg= new Message();
