@@ -128,7 +128,8 @@ public class LandscapeActivity extends Activity {
 
     private EditText mipEditText;
     private String mip;
-    final String defaultIP = "123.124.164.142";
+    //final String defaultIP = "123.124.164.142";
+    final String defaultIP = "nsw.urthe1.xyz";
 
     private String mdeviceID;
     private String mStatus;
@@ -480,7 +481,7 @@ public class LandscapeActivity extends Activity {
         //初始化推流地址
         SharedPreferences pref = getSharedPreferences("data",MODE_PRIVATE);
         mid = pref.getString("id","");
-        mPublishUrl = pref.getString("url","rtmp://"+mip+":1935/live_540/");
+        mPublishUrl = pref.getString("url","rtmp://"+mip+"/live_540/");
         if(TextUtils.isEmpty(mid)) {
             mUploadDialog.setCanceledOnTouchOutside(false);
             mUploadDialog.show();
@@ -929,7 +930,7 @@ public class LandscapeActivity extends Activity {
                 mLFLiveView.setVideoConfiguration(mVideoConfiguration);
                 mRtmpSender.setVideoParams(1920, 1080);
 
-                mPublishUrl = "rtmp://"+mip+":1935/live_landscape_1080p/";
+                mPublishUrl = "rtmp://"+mip+"/live_landscape_1080p/";
             }else if (mresolution.compareTo("720")==0){
                 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
                 videoBuilder.setSize(1280, 720).setBps(600,1600);
@@ -938,7 +939,7 @@ public class LandscapeActivity extends Activity {
 
                 mRtmpSender.setVideoParams(1280, 720);
 
-                mPublishUrl = "rtmp://"+mip+":1935/live_720_convert/";
+                mPublishUrl = "rtmp://"+mip+"/live_720_convert/";
             }else{
                 Toast.makeText(LandscapeActivity.this, "默认用540", Toast.LENGTH_SHORT).show();
                 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
@@ -948,7 +949,7 @@ public class LandscapeActivity extends Activity {
 
                 mRtmpSender.setVideoParams(960, 540);
 
-                mPublishUrl = "rtmp://"+mip+":1935/live_540/";
+                mPublishUrl = "rtmp://"+mip+"/live_540/";
             }
         }else{
             if(mresolution.compareTo("1080")==0){
@@ -959,7 +960,7 @@ public class LandscapeActivity extends Activity {
 
                 mRtmpSender.setVideoParams(1080, 1920);
 
-                mPublishUrl = "rtmp://"+mip+":1935/live_portrait_1080p/";
+                mPublishUrl = "rtmp://"+mip+"/live_portrait_1080p/";
             }else if (mresolution.compareTo("720")==0){
                 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
                 videoBuilder.setSize(720, 1280).setBps(600,1600);
@@ -968,7 +969,7 @@ public class LandscapeActivity extends Activity {
 
                 mRtmpSender.setVideoParams(720, 1280);
 
-                mPublishUrl = "rtmp://"+mip+":1935/live_portrait_720p/";
+                mPublishUrl = "rtmp://"+mip+"/live_portrait_720p/";
             }else{
                 Toast.makeText(LandscapeActivity.this, "默认用540", Toast.LENGTH_SHORT).show();
                 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
@@ -978,7 +979,7 @@ public class LandscapeActivity extends Activity {
 
                 mRtmpSender.setVideoParams(540, 960);
 
-                mPublishUrl = "rtmp://"+mip+":1935/live_540/";
+                mPublishUrl = "rtmp://"+mip+"/live_540/";
             }
         }
     }
