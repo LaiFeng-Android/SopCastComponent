@@ -172,6 +172,12 @@ public class LandscapeActivity extends Activity {
                     break;
                 case 4://清晰度
                     changeResolution((String)msg.obj);
+                    loadLiveViewConfig();
+                    if (isRecording) {
+                        //重启推流
+                        stopLive();
+                        startLive();
+                    }
                     break;
                 case 5:
                     changeIp((String)msg.obj);
@@ -481,7 +487,7 @@ public class LandscapeActivity extends Activity {
         }
 
         //根据远端状态来判断
-        //createSchedulePool();
+        createSchedulePool();
 
         //资源上报池
         createUploadPool();
@@ -561,7 +567,7 @@ public class LandscapeActivity extends Activity {
 
             @Override
             public void run() {
-                String jsonStr = httpGet("http://"+mip+"/api/getClientStatus");
+                String jsonStr = httpGet("http://drli.urthe1.xyz:8080/api/getClientStatus");
                 //解析json文件
                 Log.d("camera",jsonStr);
 
@@ -569,13 +575,13 @@ public class LandscapeActivity extends Activity {
                         JSONArray jsonArray = new JSONArray(jsonStr);
                         for(int i=0;i<jsonArray.length();i++) {
                             JSONObject jsonObject=(JSONObject)jsonArray.get(i);
-                            String id=jsonObject.getString("id");
+                            String id=jsonObject.getString("deviceID");
                             if(id.compareTo(mdeviceID)==0){//通过设备标识符找到
                                 //摄像头控制
                                 int facing=jsonObject.getInt("cameraPosition");
                                 int cameraNow = mLFLiveView.getCameraData().cameraFacing;
                                 Log.d("camera",String.format("cameraid:%d",cameraNow));
-                                if(facing != cameraNow){
+                                if(facing != cameraNow && facing!=0){
                                     cameraHandler.sendEmptyMessage(0);
                                 }
                                 //推流状态
@@ -583,36 +589,51 @@ public class LandscapeActivity extends Activity {
                                 if(cRecord != isRecording)
                                     cameraHandler.sendEmptyMessage(1);
                                 //间隔时间
-                                int reportInterval = jsonObject.getInt("interval");
-                                if(reportInterval !=mInterval){
-                                    Message msg= new Message();
-                                    msg.what = 2;
-                                    msg.arg1 = reportInterval;
-                                    cameraHandler.sendMessage(msg);
+                                if(!jsonObject.isNull("interval")) {
+                                    int reportInterval = jsonObject.getInt("interval");
+                                    if (reportInterval != mInterval) {
+                                        Message msg = new Message();
+                                        msg.what = 2;
+                                        msg.arg1 = reportInterval;
+                                        cameraHandler.sendMessage(msg);
+                                    }
                                 }
                                 //车牌号
-                                String carId = jsonObject.getString("id");
-                                if(carId != mid){
-                                    Message msg= new Message();
-                                    msg.what = 3;
-                                    msg.obj = carId;
-                                    cameraHandler.sendMessage(msg);
+                                if(!jsonObject.isNull("id")){
+                                    String carId = jsonObject.getString("id");
+                                    if(carId != mid){
+                                        Message msg= new Message();
+                                        msg.what = 3;
+                                        msg.obj = carId;
+                                        cameraHandler.sendMessage(msg);
+                                    }
                                 }
                                 //清晰度
-                                String resolution = jsonObject.getString("resolution");
-                                if(resolution != mresolution){
-                                    Message msg= new Message();
-                                    msg.what = 4;
-                                    msg.obj = resolution;
-                                    cameraHandler.sendMessage(msg);
+                                if(!jsonObject.isNull("streamDefinition")){
+                                    String resolution = jsonObject.getString("streamDefinition");
+                                    if(resolution.compareTo("540P")==0){
+                                        resolution = "540";
+                                    }else if(resolution.compareTo(" 720P")==0){
+                                        resolution = "720";
+                                    }else if(resolution.compareTo("1080P")==0){
+                                        resolution = "1280";
+                                    }
+                                    if(resolution != mresolution){
+                                        Message msg= new Message();
+                                        msg.what = 4;
+                                        msg.obj = resolution;
+                                        cameraHandler.sendMessage(msg);
+                                    }
                                 }
                                 //推流地址
-                                String ip = jsonObject.getString("ip");
-                                if(ip != mip){
-                                    Message msg= new Message();
-                                    msg.what = 5;
-                                    msg.obj = ip;
-                                    cameraHandler.sendMessage(msg);
+                                if(!jsonObject.isNull("ip")){
+                                    String ip = jsonObject.getString("ip");
+                                    if(ip != mip){
+                                        Message msg= new Message();
+                                        msg.what = 5;
+                                        msg.obj = ip;
+                                        cameraHandler.sendMessage(msg);
+                                    }
                                 }
                                 break;
                             }
@@ -1114,9 +1135,6 @@ public class LandscapeActivity extends Activity {
                 if(mlatitude >0){
                     uriAPI += String.format("&latitude=%f",mlatitude);
                 }
-//                if(!TextUtils.isEmpty(mdeviceTime)){
-//                    uriAPI += String.format("&deviceTime=%s",mdeviceTime);
-//                }
                 if(!TextUtils.isEmpty(mlocationType)){
                     uriAPI += String.format("&locationType=%s",mlocationType);
                 }
@@ -1127,6 +1145,10 @@ public class LandscapeActivity extends Activity {
                 HttpClient postClient = new DefaultHttpClient();
                 HttpPost httpPost = new HttpPost(uriAPI);
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
+                if(!TextUtils.isEmpty(mdeviceTime)){
+                    params.add(new BasicNameValuePair("deviceTime", mdeviceTime));
+                }
+
                 UrlEncodedFormEntity entity;
                 HttpResponse response;
                 try {
