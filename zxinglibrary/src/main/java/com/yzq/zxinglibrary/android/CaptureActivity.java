@@ -33,6 +33,8 @@ import com.yzq.zxinglibrary.view.ViewfinderView;
 
 import java.io.IOException;
 
+import static java.lang.Thread.sleep;
+
 
 /**
  * @author: yzq
@@ -202,9 +204,19 @@ public class CaptureActivity extends AppCompatActivity implements SurfaceHolder.
         Intent intent = getIntent();
         intent.putExtra(Constant.CODED_CONTENT, rawResult.getText());
         setResult(RESULT_OK, intent);
+
+        delay(2000);
         this.finish();
+    }
 
 
+    private void delay(int ms){
+        try {
+            Thread.currentThread();
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 

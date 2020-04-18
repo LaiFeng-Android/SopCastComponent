@@ -198,12 +198,10 @@ public class LandscapeActivity extends Activity {
         mdeviceTime ="";//gps时间
         mlocationType ="";//定位类型
         mDirection = 0;//方向
-
         mInterval = 10;//上报时间
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
 
         //获取预设信息
         SharedPreferences pref = getSharedPreferences("data", MODE_PRIVATE);
@@ -216,18 +214,10 @@ public class LandscapeActivity extends Activity {
             setContentView(R.layout.activity_portrait);
         }
 
-        getPermission();
+        init();
 
-        /***
-         * 设备ID号
-         */
-        TelephonyManager tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        mdeviceID = tm.getDeviceId().toString();
-        Log.d(TAG,String.format("deviceID:%s",mdeviceID));
-
+        Intent intent = getIntent();
+        mdeviceID = intent.getStringExtra("deviceID");
         /***
          * 初始化定位sdk，建议在Application中创建
          */
@@ -424,31 +414,7 @@ public class LandscapeActivity extends Activity {
             }
         };
 
-        /** 获取权限*/
-    private void getPermission() {
-        if (Build.VERSION.SDK_INT>22){
-            if (ContextCompat.checkSelfPermission(LandscapeActivity.this,
-                    android.Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED){
-                //先判断有没有权限 ，没有就在这里进行权限的申请
-                ActivityCompat.requestPermissions(LandscapeActivity.this,
-                        new String[]{
-                                Manifest.permission.CAMERA,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                Manifest.permission.RECORD_AUDIO,
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.READ_PHONE_STATE
-                        },1);
-            }else {
-                //说明已经获取到摄像头权限了
-                Log.i("MainActivity","已经获取了权限");
-                init();
-            }
-        }else {
-//这个说明系统版本在6.0之下，不需要动态获取权限。
-            Log.i("MainActivity","这个说明系统版本在6.0之下，不需要动态获取权限。");
-        }
-    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
