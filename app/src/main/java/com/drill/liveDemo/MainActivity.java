@@ -56,7 +56,9 @@ public class MainActivity extends AppCompatActivity {
 
         //获取权限
         getPermission();
+    }
 
+    void init(){
         /***
          * 设备ID号
          */
@@ -83,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
             }else {
                 //说明已经获取到摄像头权限了
                 Log.i("MainActivity","已经获取了权限");
+                init();
             }
         }else {
 //这个说明系统版本在6.0之下，不需要动态获取权限。
@@ -90,6 +93,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                Log.i("MainActivity","dialog权限回调");
+                init();
+            }
+            return;
+        }
+
+        // other 'case' lines to check for other
+        // permissions this app might request
+
+    }
 
     public class HoloTilesAdapter extends BaseAdapter {
 

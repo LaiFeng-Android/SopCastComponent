@@ -414,24 +414,6 @@ public class LandscapeActivity extends Activity {
             }
         };
 
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case 1: {
-                Log.i("MainActivity","dialog权限回调");
-                init();
-                }
-                return;
-            }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
-
-    }
-
     private void init(){
         initEffects();
         initViews();
