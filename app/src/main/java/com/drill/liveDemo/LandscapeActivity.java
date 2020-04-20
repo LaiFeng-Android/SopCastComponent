@@ -512,10 +512,10 @@ public class LandscapeActivity extends Activity {
 
             @Override
             public void run() {
-                String jsonStr = httpGet("http://drli.urthe1.xyz:8080/api/getClientStatus");
+                //单设备控制接口
+                String jsonStr = httpGet("http://drli.urthe1.xyz/api/getClientStatus");
                 //解析json文件
                 Log.d("camera",jsonStr);
-
                 try {
                         JSONArray jsonArray = new JSONArray(jsonStr);
                         for(int i=0;i<jsonArray.length();i++) {
@@ -533,16 +533,6 @@ public class LandscapeActivity extends Activity {
                                 boolean cRecord = jsonObject.getBoolean("pushStatus");
                                 if(cRecord != isRecording)
                                     cameraHandler.sendEmptyMessage(1);
-                                //间隔时间
-                                if(!jsonObject.isNull("interval")) {
-                                    int reportInterval = jsonObject.getInt("interval");
-                                    if (reportInterval != mInterval) {
-                                        Message msg = new Message();
-                                        msg.what = 2;
-                                        msg.arg1 = reportInterval;
-                                        cameraHandler.sendMessage(msg);
-                                    }
-                                }
                                 //车牌号
                                 if(!jsonObject.isNull("streamID")){
                                     String carId = jsonObject.getString("streamID");
@@ -581,6 +571,23 @@ public class LandscapeActivity extends Activity {
                                     }
                                 }
                                 break;
+                            }
+                        }
+                    }catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                //全局控制接口
+                jsonStr = httpGet("http://drli.urthe1.xyz/api/settings");
+                try {
+                        JSONObject jsonObject=new JSONObject(jsonStr);
+                        //间隔时间
+                        if(!jsonObject.isNull("interval")) {
+                            int reportInterval = jsonObject.getInt("interval");
+                            if (reportInterval != mInterval) {
+                                Message msg = new Message();
+                                msg.what = 2;
+                                msg.arg1 = reportInterval;
+                                cameraHandler.sendMessage(msg);
                             }
                         }
                     }catch (JSONException e) {
@@ -1065,7 +1072,7 @@ public class LandscapeActivity extends Activity {
     {
         new Thread(new Runnable() {
             public void run() {
-                String uriAPI = "http://drli.urthe1.xyz:8080/api/updateDevicesStatus?deviceID=" + mdeviceID+"&streamID="+mid;
+                String uriAPI = "http://drli.urthe1.xyz/api/updateDevicesStatus?deviceID=" + mdeviceID+"&streamID="+mid;
                 if(!TextUtils.isEmpty(mStatus)){
                     uriAPI += String.format("&appStatus=%s",mStatus);
                 }

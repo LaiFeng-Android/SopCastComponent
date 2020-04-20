@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
 
                 new Thread(new Runnable() {
                     public void run() {
-                        String uriAPI = "http://drli.urthe1.xyz:8080/api/newScanningMessage?deviceID=" + mdeviceID;
+                        String uriAPI = "http://drli.urthe1.xyz/api/newScanningMessage?deviceID=" + mdeviceID;
                         HttpClient postClient = new DefaultHttpClient();
                         HttpPost httpPost = new HttpPost(uriAPI);
                         List<NameValuePair> params = new ArrayList<NameValuePair>();
