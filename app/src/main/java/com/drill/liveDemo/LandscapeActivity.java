@@ -544,8 +544,8 @@ public class LandscapeActivity extends Activity {
                                     }
                                 }
                                 //车牌号
-                                if(!jsonObject.isNull("id")){
-                                    String carId = jsonObject.getString("id");
+                                if(!jsonObject.isNull("streamID")){
+                                    String carId = jsonObject.getString("streamID");
                                     if(carId != mid){
                                         Message msg= new Message();
                                         msg.what = 3;
@@ -747,6 +747,7 @@ public class LandscapeActivity extends Activity {
         SharedPreferences.Editor editor = getSharedPreferences("data",MODE_PRIVATE).edit();
         editor.putString("id",mid);
         editor.apply();
+        Toast.makeText(LandscapeActivity.this, "修改车牌ID为:"+mid, Toast.LENGTH_SHORT).show();
     }
     private void changeResolution(String resolution){
         mresolution = resolution;
