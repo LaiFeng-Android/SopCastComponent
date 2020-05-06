@@ -129,7 +129,7 @@ public class LandscapeActivity extends Activity {
     private EditText mipEditText;
     private String mip;
     //final String defaultIP = "123.124.164.142";
-    final String defaultIP = "nsw.urthe1.xyz";
+    final String defaultIP = "drli.urthe1.xyz";
 
     private String mdeviceID;
     private String mStatus;

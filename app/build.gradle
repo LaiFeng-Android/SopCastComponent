@@ -2,6 +2,12 @@ apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
+    release {
+        storeFile file('/Users/yulin9/Documents/DrillLive')
+        storePassword "1234567"
+        keyPassword "1234567"
+        keyAlias "DrillLive"
+    }
     }
     compileSdkVersion compile_sdk_version
     defaultConfig {
@@ -15,6 +21,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
         debug {
         }
