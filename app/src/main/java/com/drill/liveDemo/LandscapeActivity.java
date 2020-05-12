@@ -178,6 +178,9 @@ public class LandscapeActivity extends Activity {
                 case 5:
                     changeIp((String)msg.obj);
                     break;
+                case 6:
+                    openGps((boolean)msg.obj);
+                    break;
                 default:
                     break;
             }
@@ -449,7 +452,7 @@ public class LandscapeActivity extends Activity {
         mFlashBtn = (MultiToggleImageButton) findViewById(R.id.camera_flash_button);
         mFaceBtn = (MultiToggleImageButton) findViewById(R.id.camera_switch_button);
         midBtn = (MultiToggleImageButton) findViewById(R.id.id_button);
-        mgpsBtn = (MultiToggleImageButton) findViewById(R.id.id_gps);
+//        mgpsBtn = (MultiToggleImageButton) findViewById(R.id.id_gps);
         mRecordBtn = (ImageButton) findViewById(R.id.btnRecord);
         mbackBtn = (ImageButton) findViewById(R.id.backBtn);
         mProgressConnecting = (ProgressBar) findViewById(R.id.progressConnecting);
@@ -570,6 +573,16 @@ public class LandscapeActivity extends Activity {
                                         cameraHandler.sendMessage(msg);
                                     }
                                 }
+                                //是否打开GPS上报
+                                if(!jsonObject.isNull("gpsEnable")){
+                                    boolean gpsEnable = jsonObject.getBoolean("gpsEnable");
+                                    if(mGpsStarted != gpsEnable){
+                                        Message msg= new Message();
+                                        msg.what = 6;
+                                        msg.obj = gpsEnable;
+                                        cameraHandler.sendMessage(msg);
+                                    }
+                                }
                                 break;
                             }
                         }
@@ -621,26 +634,26 @@ public class LandscapeActivity extends Activity {
 
             }
         });
-        mgpsBtn.setOnStateChangeListener(new MultiToggleImageButton.OnStateChangeListener() {
-            @Override
-            public void stateChanged(View view, int state) {
-                if(!mGpsStarted) {
-//                    Intent it = new Intent(LandscapeActivity.this,GPSService.class);
-//                    startService(it);
-                    mlocationService.start();// 定位SDK
-                    mGpsStarted = true;
-                    Toast.makeText(LandscapeActivity.this, "GPS 上报打开!", Toast.LENGTH_SHORT).show();
-
-                }else{
-//                    Intent it2 = new Intent(LandscapeActivity.this,GPSService.class);
-//                    stopService(it2);
-                    mlocationService.stop();// 定位SDK
-                    mGpsStarted = false;
-                    Toast.makeText(LandscapeActivity.this, "GPS 上报关闭!", Toast.LENGTH_SHORT).show();
-
-                }
-            }
-        });
+//        mgpsBtn.setOnStateChangeListener(new MultiToggleImageButton.OnStateChangeListener() {
+//            @Override
+//            public void stateChanged(View view, int state) {
+//                if(!mGpsStarted) {
+////                    Intent it = new Intent(LandscapeActivity.this,GPSService.class);
+////                    startService(it);
+//                    mlocationService.start();// 定位SDK
+//                    mGpsStarted = true;
+//                    Toast.makeText(LandscapeActivity.this, "GPS 上报打开!", Toast.LENGTH_SHORT).show();
+//
+//                }else{
+////                    Intent it2 = new Intent(LandscapeActivity.this,GPSService.class);
+////                    stopService(it2);
+//                    mlocationService.stop();// 定位SDK
+//                    mGpsStarted = false;
+//                    Toast.makeText(LandscapeActivity.this, "GPS 上报关闭!", Toast.LENGTH_SHORT).show();
+//
+//                }
+//            }
+//        });
         mRecordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -767,6 +780,15 @@ public class LandscapeActivity extends Activity {
         SharedPreferences.Editor editor = getSharedPreferences("data",MODE_PRIVATE).edit();
         editor.putString("ip",mresolution);
         editor.apply();
+    }
+    private void openGps(boolean gpsEnable){
+        if(gpsEnable) {
+            mGpsStarted = true;
+            mlocationService.start();
+        }else{
+            mGpsStarted = false;
+            mlocationService.stop();
+        }
     }
 
     private void stopLive(){

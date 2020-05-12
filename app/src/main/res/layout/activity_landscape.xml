@@ -39,10 +39,6 @@
             android:id="@+id/id_button"
             style="@style/NiceOption"
             app:imageIds="@array/camera_render_icons" />
-        <com.drill.liveDemo.ui.MultiToggleImageButton
-            android:id="@+id/id_gps"
-            style="@style/NiceOption"
-            app:imageIds="@array/gps_icons" />
     </com.drill.liveDemo.ui.TopRightWeightedLayout>
 
     <LinearLayout

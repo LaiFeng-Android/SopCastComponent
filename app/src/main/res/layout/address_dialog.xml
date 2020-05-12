@@ -9,20 +9,20 @@
         android:id="@+id/ip"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="3dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14dp"
+        android:textSize="10dp"
         android:hint="可配置推流地址，默认为123.124.164.142"/>
 
     <EditText
         android:id="@+id/address"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="3dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14dp"
+        android:textSize="10dp"
         android:hint="车牌数字（0-100）"/>
 
     <EditText
@@ -30,26 +30,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="15dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="3dp"
         android:layout_marginRight="15dp"
         android:hint="分辨率（540，720，1080），不填默认540"
-        android:textSize="14dp" />
+        android:textSize="10dp" />
 
     <Switch
         android:id="@+id/switchOrientation"
-        android:layout_width="102dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginRight="15dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginRight="10dp"
         android:text="打开竖屏" />
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
-        android:layout_marginBottom="15dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="3dp"
+        android:layout_marginTop="3dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
