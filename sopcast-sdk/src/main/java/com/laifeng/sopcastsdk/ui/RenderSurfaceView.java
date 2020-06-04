@@ -7,8 +7,9 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 
-import com.laifeng.sopcastsdk.constant.SopCastConstant;
 import com.laifeng.sopcastsdk.camera.CameraHolder;
+import com.laifeng.sopcastsdk.constant.SopCastConstant;
+import com.laifeng.sopcastsdk.ui.gl.GLTextureView;
 import com.laifeng.sopcastsdk.utils.SopCastLog;
 import com.laifeng.sopcastsdk.video.MyRenderer;
 import com.laifeng.sopcastsdk.video.effect.Effect;
@@ -22,7 +23,7 @@ import com.laifeng.sopcastsdk.video.effect.Effect;
  * @Time 下午5:12
  * @Version
  */
-public class RenderSurfaceView extends GLSurfaceView {
+public class RenderSurfaceView extends GLTextureView {
     private MyRenderer mRenderer;
 
     public RenderSurfaceView(Context context) {
@@ -40,34 +41,37 @@ public class RenderSurfaceView extends GLSurfaceView {
         setEGLContextClientVersion(2);
         setRenderer(mRenderer);
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-        SurfaceHolder surfaceHolder = getHolder();
-        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        surfaceHolder.addCallback(mSurfaceHolderCallback);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            setPreserveEGLContextOnPause(true);
+        }
+//        SurfaceHolder surfaceHolder = getHolder();
+//        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+//        surfaceHolder.addCallback(mSurfaceHolderCallback);
     }
 
     public MyRenderer getRenderer() {
         return mRenderer;
     }
 
-    private SurfaceHolder.Callback mSurfaceHolderCallback = new SurfaceHolder.Callback() {
-        @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
-            SopCastLog.d(SopCastConstant.TAG, "SurfaceView destroy");
-            CameraHolder.instance().stopPreview();
-            CameraHolder.instance().releaseCamera();
-        }
-
-        @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-        @Override
-        public void surfaceCreated(SurfaceHolder holder) {
-            SopCastLog.d(SopCastConstant.TAG, "SurfaceView created");
-        }
-
-        @Override
-        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            SopCastLog.d(SopCastConstant.TAG, "SurfaceView width:" + width + " height:" + height);
-        }
-    };
+//    private SurfaceHolder.Callback mSurfaceHolderCallback = new SurfaceHolder.Callback() {
+//        @Override
+//        public void surfaceDestroyed(SurfaceHolder holder) {
+//            SopCastLog.d(SopCastConstant.TAG, "SurfaceView destroy but ignore");
+////            CameraHolder.instance().stopPreview();
+////            CameraHolder.instance().releaseCamera();
+//        }
+//
+//        @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+//        @Override
+//        public void surfaceCreated(SurfaceHolder holder) {
+//            SopCastLog.d(SopCastConstant.TAG, "SurfaceView created");
+//        }
+//
+//        @Override
+//        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+//            SopCastLog.d(SopCastConstant.TAG, "SurfaceView width:" + width + " height:" + height);
+//        }
+//    };
 
     public void setEffect(final Effect effect) {
         this.queueEvent(new Runnable() {
@@ -78,5 +82,9 @@ public class RenderSurfaceView extends GLSurfaceView {
                 }
             }
         });
+    }
+
+    public void onPause() {
+//        mGLThread.onPause();
     }
 }

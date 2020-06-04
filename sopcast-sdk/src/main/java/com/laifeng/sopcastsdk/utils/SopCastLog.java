@@ -12,7 +12,7 @@ import android.util.Log;
  * @Version
  */
 public class SopCastLog {
-    private static boolean open = false;
+    private static boolean open = true;
 
     public static void isOpen(boolean isOpen) {
         open = isOpen;

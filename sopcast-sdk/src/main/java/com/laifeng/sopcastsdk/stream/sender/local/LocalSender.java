@@ -59,7 +59,7 @@ public class LocalSender implements Sender{
             try {
                 mBuffer.close();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
+                //  Auto-generated catch block
                 e.printStackTrace();
             }
             mBuffer = null;
@@ -68,7 +68,7 @@ public class LocalSender implements Sender{
             try {
                 mOutStream.close();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
+                //  Auto-generated catch block
                 e.printStackTrace();
             }
             mBuffer = null;

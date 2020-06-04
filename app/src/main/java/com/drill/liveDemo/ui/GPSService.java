@@ -26,14 +26,14 @@ class GPSServiceListener implements LocationListener {
     @Override
     public void onProviderDisabled(String provider) {
         Log.i("GPSService", "onProviderDisabled");
-        // TODO Auto-generated method stub
+        //  Auto-generated method stub
     }
 
     @Override
     public void onProviderEnabled(String provider) {
         Log.i("GPSService", "onProviderEnabled");
 
-        // TODO Auto-generated method stub
+        //  Auto-generated method stub
 
     }
 
@@ -80,7 +80,7 @@ public class GPSService extends Service {
 
     @Override
     public IBinder onBind(Intent arg0) {
-        // TODO Auto-generated method stub
+        //  Auto-generated method stub
         return mBinder;
     }
 

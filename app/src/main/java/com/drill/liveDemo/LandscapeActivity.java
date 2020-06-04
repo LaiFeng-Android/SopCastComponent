@@ -1,55 +1,42 @@
 package com.drill.liveDemo;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.Service;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
 import android.os.BatteryManager;
 import android.os.Bundle;
-import android.os.Vibrator;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.Toast;
-import android.view.WindowManager;
-import android.util.Log;
-import android.os.Build;
 
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
-import com.baidu.location.Poi;
-import com.baidu.location.PoiRegion;
+import com.drill.liveDemo.baiduGps.LocationService;
 import com.drill.liveDemo.ui.MultiToggleImageButton;
-import com.drill.liveDemo.ui.GPSService;
 import com.laifeng.sopcastsdk.camera.CameraListener;
 import com.laifeng.sopcastsdk.configuration.AudioConfiguration;
 import com.laifeng.sopcastsdk.configuration.CameraConfiguration;
 import com.laifeng.sopcastsdk.configuration.VideoConfiguration;
-import com.laifeng.sopcastsdk.entity.Watermark;
-import com.laifeng.sopcastsdk.entity.WatermarkPosition;
 import com.laifeng.sopcastsdk.stream.packer.rtmp.RtmpPacker;
 import com.laifeng.sopcastsdk.stream.sender.rtmp.RtmpSender;
 import com.laifeng.sopcastsdk.ui.CameraLivingView;
@@ -57,45 +44,31 @@ import com.laifeng.sopcastsdk.utils.SopCastLog;
 import com.laifeng.sopcastsdk.video.effect.GrayEffect;
 import com.laifeng.sopcastsdk.video.effect.NullEffect;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.io.*;
-
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.os.Handler;
-import android.os.Message;
-
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.*;
-import org.apache.http.impl.client.*;
-
-import android.content.pm.PackageManager;
-
-import com.drill.liveDemo.baiduGps.LocationService;
-
-import android.app.Application;
-import android.app.Service;
-import android.os.Vibrator;
 
 import static android.net.NetworkInfo.State.CONNECTED;
 import static com.laifeng.sopcastsdk.constant.SopCastConstant.TAG;
@@ -169,17 +142,17 @@ public class LandscapeActivity extends Activity {
                     changeInterval(msg.arg1);
                     break;
                 case 3://车牌号
-                    changeCarId((String)msg.obj);
+                    changeCarId((String) msg.obj);
                     break;
                 case 4://清晰度
-                    changeResolution((String)msg.obj);
+                    changeResolution((String) msg.obj);
                     loadLiveViewConfig();
                     break;
                 case 5:
-                    changeIp((String)msg.obj);
+                    changeIp((String) msg.obj);
                     break;
                 case 6:
-                    openGps((boolean)msg.obj);
+                    openGps((boolean) msg.obj);
                     break;
                 default:
                     break;
@@ -196,10 +169,10 @@ public class LandscapeActivity extends Activity {
         mStatus = "未推流";//当前状态
         mNetWorkInfo = "无网络";//当前网络状态
         mbattery = -1;//电池信息
-        mlongitude =0;//经度
+        mlongitude = 0;//经度
         mlatitude = 0;//纬度
-        mdeviceTime ="";//gps时间
-        mlocationType ="";//定位类型
+        mdeviceTime = "";//gps时间
+        mlocationType = "";//定位类型
         mDirection = 0;//方向
         mInterval = 10;//上报时间
 
@@ -218,6 +191,9 @@ public class LandscapeActivity extends Activity {
         }
 
         init();
+        Intent startIntent = new Intent(this, BackgroundService.class);
+        startService(startIntent);
+
 
         Intent intent = getIntent();
         mdeviceID = intent.getStringExtra("deviceID");
@@ -233,28 +209,27 @@ public class LandscapeActivity extends Activity {
 
     private BDAbstractLocationListener mListener = new BDAbstractLocationListener() {
 
-            /**
-             * 定位请求回调函数
-             * @param location 定位结果
-             */
-            @Override
-                public void onReceiveLocation(BDLocation location) {
+        /**
+         * 定位请求回调函数
+         * @param location 定位结果
+         */
+        @Override
+        public void onReceiveLocation(BDLocation location) {
 
-            // TODO Auto-generated method stub
-            if (null != location && location.getLocType() != BDLocation.TypeServerError)
-            {
-                    mlongitude=location.getLongitude();
-                    mlatitude=location.getLatitude();
-                    mdeviceTime =location.getTime();
-                    if (location.getLocType() == BDLocation.TypeGpsLocation){
-                        mlocationType="GPS定位";
-                    }else if(location.getLocType() == BDLocation.TypeNetWorkLocation){
-                        mlocationType="网络定位";
-                    }else if (location.getLocType() == BDLocation.TypeOffLineLocation){
-                        mlocationType="离线定位";
-                    }
-                    mDirection=location.getDirection();
+            //  Auto-generated method stub
+            if (null != location && location.getLocType() != BDLocation.TypeServerError) {
+                mlongitude = location.getLongitude();
+                mlatitude = location.getLatitude();
+                mdeviceTime = location.getTime();
+                if (location.getLocType() == BDLocation.TypeGpsLocation) {
+                    mlocationType = "GPS定位";
+                } else if (location.getLocType() == BDLocation.TypeNetWorkLocation) {
+                    mlocationType = "网络定位";
+                } else if (location.getLocType() == BDLocation.TypeOffLineLocation) {
+                    mlocationType = "离线定位";
                 }
+                mDirection = location.getDirection();
+            }
 //            {
 //                int tag = 1;
 //                StringBuffer sb = new StringBuffer(256);
@@ -360,19 +335,19 @@ public class LandscapeActivity extends Activity {
 //            }
         }
 
-            @Override
-            public void onConnectHotSpotMessage(String s, int i) {
+        @Override
+        public void onConnectHotSpotMessage(String s, int i) {
             super.onConnectHotSpotMessage(s, i);
         }
 
-            /**
-             * 回调定位诊断信息，开发者可以根据相关信息解决定位遇到的一些问题
-             * @param locType 当前定位类型
-             * @param diagnosticType 诊断类型（1~9）
-             * @param diagnosticMessage 具体的诊断信息释义
-             */
-            @Override
-            public void onLocDiagnosticMessage(int locType, int diagnosticType, String diagnosticMessage) {
+        /**
+         * 回调定位诊断信息，开发者可以根据相关信息解决定位遇到的一些问题
+         * @param locType 当前定位类型
+         * @param diagnosticType 诊断类型（1~9）
+         * @param diagnosticMessage 具体的诊断信息释义
+         */
+        @Override
+        public void onLocDiagnosticMessage(int locType, int diagnosticType, String diagnosticMessage) {
             super.onLocDiagnosticMessage(locType, diagnosticType, diagnosticMessage);
             int tag = 2;
             StringBuffer sb = new StringBuffer(256);
@@ -413,11 +388,11 @@ public class LandscapeActivity extends Activity {
                     sb.append("\n" + diagnosticMessage);
                 }
             }
-                Log.d("GPS",sb.toString());
-            }
-        };
+            Log.d("GPS", sb.toString());
+        }
+    };
 
-    private void init(){
+    private void init() {
         initEffects();
         initViews();
         initListeners();
@@ -426,10 +401,10 @@ public class LandscapeActivity extends Activity {
         loadLiveViewConfig();
 
         //初始化推流地址
-        SharedPreferences pref = getSharedPreferences("data",MODE_PRIVATE);
-        mid = pref.getString("id","");
-        mPublishUrl = pref.getString("url","rtmp://"+mip+"/live_540/");
-        if(TextUtils.isEmpty(mid)) {
+        SharedPreferences pref = getSharedPreferences("data", MODE_PRIVATE);
+        mid = pref.getString("id", "");
+        mPublishUrl = pref.getString("url", "rtmp://" + mip + "/live_540/");
+        if (TextUtils.isEmpty(mid)) {
             mUploadDialog.setCanceledOnTouchOutside(false);
             mUploadDialog.show();
         }
@@ -458,7 +433,7 @@ public class LandscapeActivity extends Activity {
         mProgressConnecting = (ProgressBar) findViewById(R.id.progressConnecting);
     }
 
-    private void createUploadPool(){
+    private void createUploadPool() {
         scheduleExecutor = Executors.newScheduledThreadPool(5);
         timeTask = new Runnable() {
             @Override
@@ -474,13 +449,13 @@ public class LandscapeActivity extends Activity {
         scheduleManager = scheduleExecutor.scheduleAtFixedRate(timeTask, 1, mInterval, TimeUnit.SECONDS);
     }
 
-    private void getBarryInfo(){
+    private void getBarryInfo() {
         BatteryManager manager = (BatteryManager) getSystemService(BATTERY_SERVICE);
-        mbattery =manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
-        Log.d("battery",String.format("battery info:%d",mbattery));
+        mbattery = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+        Log.d("battery", String.format("battery info:%d", mbattery));
     }
 
-    private void getNetInfo(){
+    private void getNetInfo() {
         //获得ConnectivityManager对象
         Context context = getApplicationContext();
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);        //获取所有网络连接的信息
@@ -488,12 +463,12 @@ public class LandscapeActivity extends Activity {
             Network[] networks = connectivityManager.getAllNetworks();
             if (networks != null && networks.length > 0) {
                 int size = networks.length;
-                for (int i=0; i<size; i++) {
-                   NetworkInfo.State state = connectivityManager.getNetworkInfo(networks[i]).getState();
-                   if(state == CONNECTED) {
-                       Log.d("TAG", "=====类型====" + connectivityManager.getNetworkInfo(networks[i]).getTypeName());
-                       mNetWorkInfo = connectivityManager.getNetworkInfo(networks[i]).getTypeName();
-                   }
+                for (int i = 0; i < size; i++) {
+                    NetworkInfo.State state = connectivityManager.getNetworkInfo(networks[i]).getState();
+                    if (state == CONNECTED) {
+                        Log.d("TAG", "=====类型====" + connectivityManager.getNetworkInfo(networks[i]).getTypeName());
+                        mNetWorkInfo = connectivityManager.getNetworkInfo(networks[i]).getTypeName();
+                    }
                 }
             }
         }
@@ -509,7 +484,7 @@ public class LandscapeActivity extends Activity {
 //        }
     }
 
-    private void createSchedulePool(){
+    private void createSchedulePool() {
         ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(5);
         scheduledThreadPool.scheduleAtFixedRate(new Runnable() {
 
@@ -518,95 +493,95 @@ public class LandscapeActivity extends Activity {
                 //单设备控制接口
                 String jsonStr = httpGet("http://drli.urthe1.xyz/api/getClientStatus");
                 //解析json文件
-                Log.d("camera",jsonStr);
+                Log.d("camera", jsonStr);
                 try {
-                        JSONArray jsonArray = new JSONArray(jsonStr);
-                        for(int i=0;i<jsonArray.length();i++) {
-                            JSONObject jsonObject=(JSONObject)jsonArray.get(i);
-                            String id=jsonObject.getString("deviceID");
-                            if(id.compareTo(mdeviceID)==0){//通过设备标识符找到
-                                //摄像头控制
-                                int facing=jsonObject.getInt("cameraPosition");
-                                int cameraNow = mLFLiveView.getCameraData().cameraFacing;
-                                Log.d("camera",String.format("cameraid:%d",cameraNow));
-                                if(facing != cameraNow && facing!=0){
-                                    cameraHandler.sendEmptyMessage(0);
-                                }
-                                //推流状态
-                                boolean cRecord = jsonObject.getBoolean("pushStatus");
-                                if(cRecord != isRecording)
-                                    cameraHandler.sendEmptyMessage(1);
-                                //车牌号
-                                if(!jsonObject.isNull("streamID")){
-                                    String carId = jsonObject.getString("streamID");
-                                    if(carId != mid){
-                                        Message msg= new Message();
-                                        msg.what = 3;
-                                        msg.obj = carId;
-                                        cameraHandler.sendMessage(msg);
-                                    }
-                                }
-                                //清晰度
-                                if(!jsonObject.isNull("streamDefinition")){
-                                    String resolution = jsonObject.getString("streamDefinition");
-                                    if(resolution.compareTo("540P")==0){
-                                        resolution = "540";
-                                    }else if(resolution.compareTo(" 720P")==0){
-                                        resolution = "720";
-                                    }else if(resolution.compareTo(" 1080P")==0){
-                                        resolution = "1080";
-                                    }
-                                    if(resolution != mresolution){
-                                        Message msg= new Message();
-                                        msg.what = 4;
-                                        msg.obj = resolution;
-                                        cameraHandler.sendMessage(msg);
-                                    }
-                                }
-                                //推流地址
-                                if(!jsonObject.isNull("ip")){
-                                    String ip = jsonObject.getString("ip");
-                                    if(ip != mip){
-                                        Message msg= new Message();
-                                        msg.what = 5;
-                                        msg.obj = ip;
-                                        cameraHandler.sendMessage(msg);
-                                    }
-                                }
-                                //是否打开GPS上报
-                                if(!jsonObject.isNull("gpsEnable")){
-                                    boolean gpsEnable = jsonObject.getBoolean("gpsEnable");
-                                    if(mGpsStarted != gpsEnable){
-                                        Message msg= new Message();
-                                        msg.what = 6;
-                                        msg.obj = gpsEnable;
-                                        cameraHandler.sendMessage(msg);
-                                    }
-                                }
-                                break;
+                    JSONArray jsonArray = new JSONArray(jsonStr);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+                        String id = jsonObject.getString("deviceID");
+                        if (id.compareTo(mdeviceID) == 0) {//通过设备标识符找到
+                            //摄像头控制
+                            int facing = jsonObject.getInt("cameraPosition");
+                            int cameraNow = mLFLiveView.getCameraData().cameraFacing;
+                            Log.d("camera", String.format("cameraid:%d", cameraNow));
+                            if (facing != cameraNow && facing != 0) {
+                                cameraHandler.sendEmptyMessage(0);
                             }
+                            //推流状态
+                            boolean cRecord = jsonObject.getBoolean("pushStatus");
+                            if (cRecord != isRecording)
+                                cameraHandler.sendEmptyMessage(1);
+                            //车牌号
+                            if (!jsonObject.isNull("streamID")) {
+                                String carId = jsonObject.getString("streamID");
+                                if (carId != mid) {
+                                    Message msg = new Message();
+                                    msg.what = 3;
+                                    msg.obj = carId;
+                                    cameraHandler.sendMessage(msg);
+                                }
+                            }
+                            //清晰度
+                            if (!jsonObject.isNull("streamDefinition")) {
+                                String resolution = jsonObject.getString("streamDefinition");
+                                if (resolution.compareTo("540P") == 0) {
+                                    resolution = "540";
+                                } else if (resolution.compareTo(" 720P") == 0) {
+                                    resolution = "720";
+                                } else if (resolution.compareTo(" 1080P") == 0) {
+                                    resolution = "1080";
+                                }
+                                if (resolution != mresolution) {
+                                    Message msg = new Message();
+                                    msg.what = 4;
+                                    msg.obj = resolution;
+                                    cameraHandler.sendMessage(msg);
+                                }
+                            }
+                            //推流地址
+                            if (!jsonObject.isNull("ip")) {
+                                String ip = jsonObject.getString("ip");
+                                if (ip != mip) {
+                                    Message msg = new Message();
+                                    msg.what = 5;
+                                    msg.obj = ip;
+                                    cameraHandler.sendMessage(msg);
+                                }
+                            }
+                            //是否打开GPS上报
+                            if (!jsonObject.isNull("gpsEnable")) {
+                                boolean gpsEnable = jsonObject.getBoolean("gpsEnable");
+                                if (mGpsStarted != gpsEnable) {
+                                    Message msg = new Message();
+                                    msg.what = 6;
+                                    msg.obj = gpsEnable;
+                                    cameraHandler.sendMessage(msg);
+                                }
+                            }
+                            break;
                         }
-                    }catch (JSONException e) {
+                    }
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 //全局控制接口
                 jsonStr = httpGet("http://drli.urthe1.xyz/api/settings");
                 try {
-                        JSONObject jsonObject=new JSONObject(jsonStr);
-                        //间隔时间
-                        if(!jsonObject.isNull("interval")) {
-                            int reportInterval = jsonObject.getInt("interval");
-                            if (reportInterval != mInterval) {
-                                Message msg = new Message();
-                                msg.what = 2;
-                                msg.arg1 = reportInterval;
-                                cameraHandler.sendMessage(msg);
-                            }
+                    JSONObject jsonObject = new JSONObject(jsonStr);
+                    //间隔时间
+                    if (!jsonObject.isNull("interval")) {
+                        int reportInterval = jsonObject.getInt("interval");
+                        if (reportInterval != mInterval) {
+                            Message msg = new Message();
+                            msg.what = 2;
+                            msg.arg1 = reportInterval;
+                            cameraHandler.sendMessage(msg);
                         }
-                    }catch (JSONException e) {
+                    }
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
-         }
+            }
         }, 1, 3, TimeUnit.SECONDS);
     }
 
@@ -623,7 +598,7 @@ public class LandscapeActivity extends Activity {
                 mLFLiveView.switchCamera();
             }
         });
-        midBtn.setOnStateChangeListener(new MultiToggleImageButton.OnStateChangeListener(){
+        midBtn.setOnStateChangeListener(new MultiToggleImageButton.OnStateChangeListener() {
             public void stateChanged(View view, int state) {
                 mUploadDialog.setCanceledOnTouchOutside(false);
                 mAddressET.setText(mid);
@@ -657,7 +632,7 @@ public class LandscapeActivity extends Activity {
         mRecordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isRecording) {
+                if (isRecording) {
                     stopLive();
                 } else {
                     startLive();
@@ -674,7 +649,7 @@ public class LandscapeActivity extends Activity {
 
     private void initRtmpAddressDialog() {
         LayoutInflater inflater = getLayoutInflater();
-        View playView = inflater.inflate(R.layout.address_dialog,(ViewGroup) findViewById(R.id.dialog));
+        View playView = inflater.inflate(R.layout.address_dialog, (ViewGroup) findViewById(R.id.dialog));
         mAddressET = (EditText) playView.findViewById(R.id.address);
         msolution = (EditText) playView.findViewById(R.id.resolution);
         mOrientationSwitch = (Switch) playView.findViewById(R.id.switchOrientation);
@@ -690,50 +665,49 @@ public class LandscapeActivity extends Activity {
             @Override
             public void onClick(View v) {
                 mid = mAddressET.getText().toString();
-                if(TextUtils.isEmpty(mid)) {
+                if (TextUtils.isEmpty(mid)) {
                     Toast.makeText(LandscapeActivity.this, "车号ID不为空!", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 mresolution = msolution.getText().toString();
-                if(TextUtils.isEmpty(mresolution)) {
+                if (TextUtils.isEmpty(mresolution)) {
                     mresolution = "540";
                 }
 
                 mip = mipEditText.getText().toString();
-                if(TextUtils.isEmpty(mip)) {
+                if (TextUtils.isEmpty(mip)) {
                     mip = defaultIP;
                 }
 
-                if(!mOrientationSwitch.isChecked())
-                {
+                if (!mOrientationSwitch.isChecked()) {
                     mProtait = false;
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                }else{
+                } else {
                     mProtait = true;
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                 }
 
                 //持久化
-                SharedPreferences.Editor editor = getSharedPreferences("data",MODE_PRIVATE).edit();
-                editor.putString("id",mid);
-                editor.putString("ip",mip);
-                editor.putString("resolution",mresolution);
-                editor.putBoolean("portrait",mOrientationSwitch.isChecked());
+                SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+                editor.putString("id", mid);
+                editor.putString("ip", mip);
+                editor.putString("resolution", mresolution);
+                editor.putBoolean("portrait", mOrientationSwitch.isChecked());
                 editor.apply();
 
                 //这里需要重新导入数据
                 loadLiveViewConfig();
 
-                editor = getSharedPreferences("data",MODE_PRIVATE).edit();
-                editor.putString("url",mPublishUrl);
+                editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+                editor.putString("url", mPublishUrl);
                 editor.apply();
 
                 LandscapeActivity.this.runOnUiThread(new Runnable() {
 
                     @Override
                     public void run() {
-                        Log.i("Dialog","dialog dismiss");
+                        Log.i("Dialog", "dialog dismiss");
                         mUploadDialog.dismiss();
                     }
                 });
@@ -745,7 +719,7 @@ public class LandscapeActivity extends Activity {
                 LandscapeActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.i("Dialog","dialog dismiss");
+                        Log.i("Dialog", "dialog dismiss");
                         mUploadDialog.dismiss();
                     }
                 });                //开启状态查询
@@ -753,59 +727,62 @@ public class LandscapeActivity extends Activity {
         });
     }
 
-    private void changeInterval(int newValue){
+    private void changeInterval(int newValue) {
         mInterval = newValue;
-        if (scheduleManager!= null)
-        {
+        if (scheduleManager != null) {
             scheduleManager.cancel(true);
         }
         scheduleManager = scheduleExecutor.scheduleAtFixedRate(timeTask, 1, mInterval, TimeUnit.SECONDS);
     }
 
-    private void changeCarId(String carID){
+    private void changeCarId(String carID) {
         mid = carID;
-        SharedPreferences.Editor editor = getSharedPreferences("data",MODE_PRIVATE).edit();
-        editor.putString("id",mid);
+        SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+        editor.putString("id", mid);
         editor.apply();
-        Toast.makeText(LandscapeActivity.this, "修改车牌ID为:"+mid, Toast.LENGTH_SHORT).show();
+        Toast.makeText(LandscapeActivity.this, "修改车牌ID为:" + mid, Toast.LENGTH_SHORT).show();
     }
-    private void changeResolution(String resolution){
+
+    private void changeResolution(String resolution) {
         mresolution = resolution;
-        SharedPreferences.Editor editor = getSharedPreferences("data",MODE_PRIVATE).edit();
-        editor.putString("resolution",mresolution);
+        SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+        editor.putString("resolution", mresolution);
         editor.apply();
     }
-    private void changeIp(String ip){
+
+    private void changeIp(String ip) {
         mip = ip;
-        SharedPreferences.Editor editor = getSharedPreferences("data",MODE_PRIVATE).edit();
-        editor.putString("ip",mresolution);
+        SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+        editor.putString("ip", mresolution);
         editor.apply();
     }
-    private void openGps(boolean gpsEnable){
-        if(gpsEnable) {
+
+    private void openGps(boolean gpsEnable) {
+        if (gpsEnable) {
             mGpsStarted = true;
             mlocationService.start();
-        }else{
+        } else {
             mGpsStarted = false;
             mlocationService.stop();
         }
     }
 
-    private void stopLive(){
+    private void stopLive() {
         mProgressConnecting.setVisibility(View.GONE);
         Toast.makeText(LandscapeActivity.this, "停止直播！", Toast.LENGTH_SHORT).show();
         mRecordBtn.setBackgroundResource(R.mipmap.ic_record_start);
         mLFLiveView.stop();
         isRecording = false;
     }
-    private void startLive(){
-        if(TextUtils.isEmpty(mid)) {
+
+    private void startLive() {
+        if (TextUtils.isEmpty(mid)) {
             Toast.makeText(LandscapeActivity.this, "mid未赋值，无法推流", Toast.LENGTH_SHORT).show();
             return;
         }
-        String uploadUrl = mPublishUrl+mid;
-        Log.i("mid","url:"+uploadUrl);
-        Toast.makeText(LandscapeActivity.this,uploadUrl, Toast.LENGTH_SHORT).show();
+        String uploadUrl = mPublishUrl + mid;
+        Log.i("mid", "url:" + uploadUrl);
+        Toast.makeText(LandscapeActivity.this, uploadUrl, Toast.LENGTH_SHORT).show();
         mRtmpSender.setAddress(uploadUrl);
         mProgressConnecting.setVisibility(View.VISIBLE);
         Toast.makeText(LandscapeActivity.this, "start connecting", Toast.LENGTH_SHORT).show();
@@ -819,12 +796,9 @@ public class LandscapeActivity extends Activity {
         SopCastLog.isOpen(true);
         mLFLiveView.init();
         CameraConfiguration.Builder cameraBuilder = new CameraConfiguration.Builder();
-        if(getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-        {
+        if (getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
             cameraBuilder.setOrientation(CameraConfiguration.Orientation.LANDSCAPE);
-        }
-        else if(getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-        {
+        } else if (getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
             cameraBuilder.setOrientation(CameraConfiguration.Orientation.PORTRAIT);
         }
         cameraBuilder.setFacing(CameraConfiguration.Facing.BACK);
@@ -884,76 +858,75 @@ public class LandscapeActivity extends Activity {
             @Override
             public void startSuccess() {
                 //直播成功
-                Toast.makeText(LandscapeActivity.this, "开始直播,id号:"+mid+",地址:"+mPublishUrl, Toast.LENGTH_SHORT).show();
+                Toast.makeText(LandscapeActivity.this, "开始直播,id号:" + mid + ",地址:" + mPublishUrl, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void loadLiveViewConfig(){
-        SharedPreferences pref = getSharedPreferences("data",MODE_PRIVATE);
-        mProtait = pref.getBoolean("portrait",false);
-        mip = pref.getString("ip",defaultIP);
-        mresolution  = pref.getString("resolution","540");
+    private void loadLiveViewConfig() {
+        SharedPreferences pref = getSharedPreferences("data", MODE_PRIVATE);
+        mProtait = pref.getBoolean("portrait", false);
+        mip = pref.getString("ip", defaultIP);
+        mresolution = pref.getString("resolution", "540");
 
-        if(!mProtait)
-        {
-            if(mresolution.compareTo("1080")==0){
+        if (!mProtait) {
+            if (mresolution.compareTo("1080") == 0) {
                 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-                videoBuilder.setSize(1920, 1080).setBps(900,1800);
+                videoBuilder.setSize(1920, 1080).setBps(900, 1800);
                 mVideoConfiguration = videoBuilder.build();
                 mLFLiveView.setVideoConfiguration(mVideoConfiguration);
                 mRtmpSender.setVideoParams(1920, 1080);
 
-                mPublishUrl = "rtmp://"+mip+"/live_landscape_1080p/";
-            }else if (mresolution.compareTo("720")==0){
+                mPublishUrl = "rtmp://" + mip + "/live_landscape_1080p/";
+            } else if (mresolution.compareTo("720") == 0) {
                 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-                videoBuilder.setSize(1280, 720).setBps(600,1600);
+                videoBuilder.setSize(1280, 720).setBps(600, 1600);
                 mVideoConfiguration = videoBuilder.build();
                 mLFLiveView.setVideoConfiguration(mVideoConfiguration);
 
                 mRtmpSender.setVideoParams(1280, 720);
 
-                mPublishUrl = "rtmp://"+mip+"/live_720_convert/";
-            }else{
+                mPublishUrl = "rtmp://" + mip + "/live_720_convert/";
+            } else {
                 Toast.makeText(LandscapeActivity.this, "默认用540", Toast.LENGTH_SHORT).show();
                 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-                videoBuilder.setSize(960, 540).setBps(450,1200);
+                videoBuilder.setSize(960, 540).setBps(450, 1200);
                 mVideoConfiguration = videoBuilder.build();
                 mLFLiveView.setVideoConfiguration(mVideoConfiguration);
 
                 mRtmpSender.setVideoParams(960, 540);
 
-                mPublishUrl = "rtmp://"+mip+"/live_540/";
+                mPublishUrl = "rtmp://" + mip + "/live_540/";
             }
-        }else{
-            if(mresolution.compareTo("1080")==0){
+        } else {
+            if (mresolution.compareTo("1080") == 0) {
                 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-                videoBuilder.setSize(1080, 1920).setBps(900,1800);
+                videoBuilder.setSize(1080, 1920).setBps(900, 1800);
                 mVideoConfiguration = videoBuilder.build();
                 mLFLiveView.setVideoConfiguration(mVideoConfiguration);
 
                 mRtmpSender.setVideoParams(1080, 1920);
 
-                mPublishUrl = "rtmp://"+mip+"/live_portrait_1080p/";
-            }else if (mresolution.compareTo("720")==0){
+                mPublishUrl = "rtmp://" + mip + "/live_portrait_1080p/";
+            } else if (mresolution.compareTo("720") == 0) {
                 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-                videoBuilder.setSize(720, 1280).setBps(600,1600);
+                videoBuilder.setSize(720, 1280).setBps(600, 1600);
                 mVideoConfiguration = videoBuilder.build();
                 mLFLiveView.setVideoConfiguration(mVideoConfiguration);
 
                 mRtmpSender.setVideoParams(720, 1280);
 
-                mPublishUrl = "rtmp://"+mip+"/live_portrait_720p/";
-            }else{
+                mPublishUrl = "rtmp://" + mip + "/live_portrait_720p/";
+            } else {
                 Toast.makeText(LandscapeActivity.this, "默认用540", Toast.LENGTH_SHORT).show();
                 VideoConfiguration.Builder videoBuilder = new VideoConfiguration.Builder();
-                videoBuilder.setSize(540, 960).setBps(450,1200);
+                videoBuilder.setSize(540, 960).setBps(450, 1200);
                 mVideoConfiguration = videoBuilder.build();
                 mLFLiveView.setVideoConfiguration(mVideoConfiguration);
 
                 mRtmpSender.setVideoParams(540, 960);
 
-                mPublishUrl = "rtmp://"+mip+"/live_540/";
+                mPublishUrl = "rtmp://" + mip + "/live_540/";
             }
         }
     }
@@ -990,29 +963,29 @@ public class LandscapeActivity extends Activity {
 
         @Override
         public void onNetGood() {
-            if (mCurrentBps + 50 <= mVideoConfiguration.maxBps){
-                SopCastLog.d(TAG, "BPS_CHANGE good up 50");
-                int bps = mCurrentBps + 50;
-                if(mLFLiveView != null) {
-                    boolean result = mLFLiveView.setVideoBps(bps);
-                    if(result) {
-                        mCurrentBps = bps;
-                    }
-                }
-            } else {
-                SopCastLog.d(TAG, "BPS_CHANGE good good good");
-            }
+//            if (mCurrentBps + 50 <= mVideoConfiguration.maxBps){
+//                SopCastLog.d(TAG, "BPS_CHANGE good up 50");
+//                int bps = mCurrentBps + 50;
+//                if(mLFLiveView != null) {
+//                    boolean result = mLFLiveView.setVideoBps(bps);
+//                    if(result) {
+//                        mCurrentBps = bps;
+//                    }
+//                }
+//            } else {
+//                SopCastLog.d(TAG, "BPS_CHANGE good good good");
+//            }
             SopCastLog.d(TAG, "Current Bps: " + mCurrentBps);
         }
 
         @Override
         public void onNetBad() {
-            if (mCurrentBps - 100 >= mVideoConfiguration.minBps){
+            if (mCurrentBps - 100 >= mVideoConfiguration.minBps) {
                 SopCastLog.d(TAG, "BPS_CHANGE bad down 100");
                 int bps = mCurrentBps - 100;
-                if(mLFLiveView != null) {
+                if (mLFLiveView != null) {
                     boolean result = mLFLiveView.setVideoBps(bps);
-                    if(result) {
+                    if (result) {
                         mCurrentBps = bps;
                     }
                 }
@@ -1042,14 +1015,14 @@ public class LandscapeActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        if(mLFLiveView!=null)
+        if (mLFLiveView != null)
             mLFLiveView.pause();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if(mLFLiveView!=null){
+        if (mLFLiveView != null) {
             mLFLiveView.resume();
         }
     }
@@ -1061,22 +1034,22 @@ public class LandscapeActivity extends Activity {
         mLFLiveView.release();
     }
 
-    public String httpGet( String httpUrl ){
-        String result = "" ;
+    public String httpGet(String httpUrl) {
+        String result = "";
         try {
             BufferedReader reader = null;
-            StringBuffer sbf = new StringBuffer() ;
+            StringBuffer sbf = new StringBuffer();
 
-            URL url  = new URL( httpUrl ) ;
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection() ;
+            URL url = new URL(httpUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             //设置超时时间 10s
             connection.setConnectTimeout(10000);
             //设置请求方式
-            connection.setRequestMethod( "GET" ) ;
+            connection.setRequestMethod("GET");
             connection.connect();
-            InputStream is = connection.getInputStream() ;
-            reader = new BufferedReader(new InputStreamReader( is , "UTF-8" )) ;
-            String strRead = null ;
+            InputStream is = connection.getInputStream();
+            reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            String strRead = null;
             while ((strRead = reader.readLine()) != null) {
                 sbf.append(strRead);
                 sbf.append("\r\n");
@@ -1090,37 +1063,36 @@ public class LandscapeActivity extends Activity {
     }
 
 
-    private void uploadInfo()
-    {
+    private void uploadInfo() {
         new Thread(new Runnable() {
             public void run() {
-                String uriAPI = "http://drli.urthe1.xyz/api/updateDevicesStatus?deviceID=" + mdeviceID+"&streamID="+mid;
-                if(!TextUtils.isEmpty(mStatus)){
-                    uriAPI += String.format("&appStatus=%s",mStatus);
+                String uriAPI = "http://drli.urthe1.xyz/api/updateDevicesStatus?deviceID=" + mdeviceID + "&streamID=" + mid;
+                if (!TextUtils.isEmpty(mStatus)) {
+                    uriAPI += String.format("&appStatus=%s", mStatus);
                 }
-                if(!TextUtils.isEmpty(mNetWorkInfo)){
-                    uriAPI += String.format("&networkType=%s",mNetWorkInfo);
+                if (!TextUtils.isEmpty(mNetWorkInfo)) {
+                    uriAPI += String.format("&networkType=%s", mNetWorkInfo);
                 }
-                if(mbattery > 0){
-                    uriAPI += String.format("&battery=%d",mbattery);
+                if (mbattery > 0) {
+                    uriAPI += String.format("&battery=%d", mbattery);
                 }
-                if(mlongitude >0){
-                    uriAPI += String.format("&longitude=%f",mlongitude);
+                if (mlongitude > 0) {
+                    uriAPI += String.format("&longitude=%f", mlongitude);
                 }
-                if(mlatitude >0){
-                    uriAPI += String.format("&latitude=%f",mlatitude);
+                if (mlatitude > 0) {
+                    uriAPI += String.format("&latitude=%f", mlatitude);
                 }
-                if(!TextUtils.isEmpty(mlocationType)){
-                    uriAPI += String.format("&locationType=%s",mlocationType);
+                if (!TextUtils.isEmpty(mlocationType)) {
+                    uriAPI += String.format("&locationType=%s", mlocationType);
                 }
-                if(mDirection > 0){
-                    uriAPI += String.format("&direction=%f",mDirection);
+                if (mDirection > 0) {
+                    uriAPI += String.format("&direction=%f", mDirection);
                 }
 
                 HttpClient postClient = new DefaultHttpClient();
                 HttpPost httpPost = new HttpPost(uriAPI);
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
-                if(!TextUtils.isEmpty(mdeviceTime)){
+                if (!TextUtils.isEmpty(mdeviceTime)) {
                     params.add(new BasicNameValuePair("deviceTime", mdeviceTime));
                 }
 
@@ -1148,14 +1120,14 @@ public class LandscapeActivity extends Activity {
 
     }
 
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
-        Log.e("active","active:pause");
+        Log.e("active", "active:pause");
         mStatus = "注意，设备已经切后台！！！";
     }
 
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
-        Log.e("active","active:resume");
+        Log.e("active", "active:resume");
     }
 }

@@ -90,23 +90,25 @@ public class StreamController implements OnAudioEncodeListener, OnVideoEncodeLis
     }
 
     public synchronized void pause() {
-        SopCastUtils.processNotUI(new SopCastUtils.INotUIProcessor() {
-            @Override
-            public void process() {
-                mAudioController.pause();
-                mVideoController.pause();
-            }
-        });
+        //TODO pause 去掉
+//        SopCastUtils.processNotUI(new SopCastUtils.INotUIProcessor() {
+//            @Override
+//            public void process() {
+//                mAudioController.pause();
+//                mVideoController.pause();
+//            }
+//        });
     }
 
     public synchronized void resume() {
-        SopCastUtils.processNotUI(new SopCastUtils.INotUIProcessor() {
-            @Override
-            public void process() {
-                mAudioController.resume();
-                mVideoController.resume();
-            }
-        });
+        //TODO pause 去掉
+//        SopCastUtils.processNotUI(new SopCastUtils.INotUIProcessor() {
+//            @Override
+//            public void process() {
+//                mAudioController.resume();
+//                mVideoController.resume();
+//            }
+//        });
     }
 
     public void mute(boolean mute) {

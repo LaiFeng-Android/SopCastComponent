@@ -20,7 +20,6 @@ public class MyRecorder {
 	private MediaCodec mMediaCodec;
 	private InputSurface mInputSurface;
 	private OnVideoEncodeListener mListener;
-	private boolean mPause;
 	private MediaCodec.BufferInfo mBufferInfo;
 	private VideoConfiguration mConfiguration;
 	private HandlerThread mHandlerThread;
@@ -34,10 +33,6 @@ public class MyRecorder {
 
 	public void setVideoEncodeListener(OnVideoEncodeListener listener) {
 		mListener = listener;
-	}
-
-	public void setPause(boolean pause) {
-		mPause = pause;
 	}
 
 	public void prepareEncoder() {
@@ -75,7 +70,7 @@ public class MyRecorder {
 	}
 
 	public void swapBuffers() {
-		if (mMediaCodec == null || mPause) {
+		if (mMediaCodec == null ) {
 			return;
 		}
 		mInputSurface.swapBuffers();
@@ -119,7 +114,7 @@ public class MyRecorder {
 		if (mMediaCodec == null || mInputSurface == null) {
 			return false;
 		}
-		SopCastLog.d(SopCastConstant.TAG, "bps :" + bps * 1024);
+		SopCastLog.d(SopCastConstant.TAG, " setRecorderBps bps :" + bps * 1024);
 		Bundle bitrate = new Bundle();
 		bitrate.putInt(MediaCodec.PARAMETER_KEY_VIDEO_BITRATE, bps * 1024);
 		mMediaCodec.setParameters(bitrate);

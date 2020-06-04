@@ -68,7 +68,8 @@ public class CameraView extends FrameLayout {
         mInflater.inflate(R.layout.layout_camera_view, this, true);
         mHandler = new WeakHandler();
         mRenderSurfaceView = (RenderSurfaceView) findViewById(R.id.render_surface_view);
-        mRenderSurfaceView.setZOrderMediaOverlay(isMediaOverlay);
+        //TODO 临时关掉
+//        mRenderSurfaceView.setZOrderMediaOverlay(isMediaOverlay);
         mRenderer = mRenderSurfaceView.getRenderer();
         mFocusHudRing = (FocusPieView) findViewById(R.id.focus_view);
         mFocusManager = new FocusManager();
@@ -154,12 +155,12 @@ public class CameraView extends FrameLayout {
         }
     }
 
-    public void setZOrderMediaOverlay(boolean isMediaOverlay) {
-        this.isMediaOverlay = isMediaOverlay;
-        if(mRenderSurfaceView != null) {
-            mRenderSurfaceView.setZOrderMediaOverlay(isMediaOverlay);
-        }
-    }
+//    public void setZOrderMediaOverlay(boolean isMediaOverlay) {
+//        this.isMediaOverlay = isMediaOverlay;
+//        if(mRenderSurfaceView != null) {
+//            mRenderSurfaceView.setZOrderMediaOverlay(isMediaOverlay);
+//        }
+//    }
 
     /**
      * Handles the pinch-to-zoom gesture

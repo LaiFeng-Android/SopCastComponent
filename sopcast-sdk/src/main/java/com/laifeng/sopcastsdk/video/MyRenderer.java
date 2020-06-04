@@ -16,13 +16,17 @@ import com.laifeng.sopcastsdk.camera.exception.CameraNotSupportException;
 import com.laifeng.sopcastsdk.camera.exception.NoCameraException;
 import com.laifeng.sopcastsdk.configuration.VideoConfiguration;
 import com.laifeng.sopcastsdk.entity.Watermark;
-
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
 import com.laifeng.sopcastsdk.mediacodec.VideoMediaCodec;
+import com.laifeng.sopcastsdk.ui.gl.GLTextureView;
+import com.laifeng.sopcastsdk.utils.SopCastLog;
 import com.laifeng.sopcastsdk.utils.WeakHandler;
 import com.laifeng.sopcastsdk.video.effect.Effect;
 import com.laifeng.sopcastsdk.video.effect.NullEffect;
+
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
+
+import static com.laifeng.sopcastsdk.constant.SopCastConstant.TAG;
 
 /**
  * @Title: MyRenderer
@@ -34,7 +38,7 @@ import com.laifeng.sopcastsdk.video.effect.NullEffect;
  * @Version
  */
 @TargetApi(18)
-public class MyRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListener{
+public class MyRenderer implements GLTextureView.Renderer, SurfaceTexture.OnFrameAvailableListener {
     private int mSurfaceTextureId = -1;
     private SurfaceTexture mSurfaceTexture;
     private Watermark mWatermark;
@@ -43,7 +47,7 @@ public class MyRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
 
     private CameraListener mCameraOpenListener;
     private WeakHandler mHandler = new WeakHandler(Looper.getMainLooper());
-    private GLSurfaceView mView;
+    private GLTextureView mView;
     private boolean isCameraOpen;
     private Effect mEffect;
     private int mEffectTextureId;
@@ -55,7 +59,7 @@ public class MyRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
     private int mVideoWidth;
     private int mVideoHeight;
 
-    public MyRenderer(GLSurfaceView view) {
+    public MyRenderer(GLTextureView view) {
         mView = view;
         mEffect = new NullEffect(mView.getContext());
     }
@@ -68,17 +72,17 @@ public class MyRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
         mVideoConfiguration = videoConfiguration;
         mVideoWidth = VideoMediaCodec.getVideoSize(mVideoConfiguration.width);
         mVideoHeight = VideoMediaCodec.getVideoSize(mVideoConfiguration.height);
-        if(mRenderScreen != null) {
+        if (mRenderScreen != null) {
             mRenderScreen.setVideoSize(mVideoWidth, mVideoHeight);
         }
     }
 
     public void setRecorder(MyRecorder recorder) {
-        synchronized(this) {
+        synchronized (this) {
             if (recorder != null) {
                 mRenderSrfTex = new RenderSrfTex(mEffectTextureId, recorder);
                 mRenderSrfTex.setVideoSize(mVideoWidth, mVideoHeight);
-                if(mWatermark != null) {
+                if (mWatermark != null) {
                     mRenderSrfTex.setWatermark(mWatermark);
                 }
             } else {
@@ -89,7 +93,8 @@ public class MyRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
 
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-        synchronized(this) {
+        SopCastLog.e(TAG, "onFrameAvailable .");
+        synchronized (this) {
             updateSurface = true;
         }
         mView.requestRender();
@@ -103,7 +108,7 @@ public class MyRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         startCameraPreview();
-        if(isCameraOpen) {
+        if (isCameraOpen) {
             if (mRenderScreen == null) {
                 initScreenTexture();
             }
@@ -118,21 +123,32 @@ public class MyRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
     }
 
     @Override
-    public void onDrawFrame(GL10 gl) {
-        synchronized(this) {
+    public boolean onDrawFrame(GL10 gl) {
+        SopCastLog.e(TAG, " \n.---VVVVVVVV----");
+        synchronized (this) {
             if (updateSurface) {
                 mSurfaceTexture.updateTexImage();
                 mSurfaceTexture.getTransformMatrix(mTexMtx);
                 updateSurface = false;
+                SopCastLog.e(TAG, " mSurfaceTexture.updateTexImage()");
+
             }
         }
         mEffect.draw(mTexMtx);
-        if(mRenderScreen != null) {
+        if (mRenderScreen != null) {
             mRenderScreen.draw();
         }
         if (mRenderSrfTex != null) {
             mRenderSrfTex.draw();
         }
+        SopCastLog.e(TAG, "done \n.----^^^^^^^^^^^^^^^----");
+
+        return true;
+    }
+
+    @Override
+    public void onSurfaceDestroyed() {
+
     }
 
     private void initSurfaceTexture() {
@@ -181,7 +197,7 @@ public class MyRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
             try {
                 CameraHolder.instance().openCamera();
                 CameraHolder.instance().startPreview();
-                if(mCameraOpenListener != null) {
+                if (mCameraOpenListener != null) {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -201,11 +217,11 @@ public class MyRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
     }
 
     private void postOpenCameraError(final int error) {
-        if(mCameraOpenListener != null) {
+        if (mCameraOpenListener != null) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    if(mCameraOpenListener != null) {
+                    if (mCameraOpenListener != null) {
                         mCameraOpenListener.onOpenFail(error);
                     }
                 }
@@ -219,10 +235,10 @@ public class MyRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
 
     public void setWatermark(Watermark watermark) {
         mWatermark = watermark;
-        if(mRenderScreen != null) {
+        if (mRenderScreen != null) {
             mRenderScreen.setWatermark(watermark);
         }
-        if(mRenderSrfTex != null) {
+        if (mRenderSrfTex != null) {
             mRenderSrfTex.setWatermark(watermark);
         }
     }
@@ -233,10 +249,10 @@ public class MyRenderer implements GLSurfaceView.Renderer, SurfaceTexture.OnFram
         effect.setTextureId(mSurfaceTextureId);
         effect.prepare();
         mEffectTextureId = effect.getEffertedTextureId();
-        if(mRenderScreen != null) {
+        if (mRenderScreen != null) {
             mRenderScreen.setTextureId(mEffectTextureId);
         }
-        if(mRenderSrfTex != null) {
+        if (mRenderSrfTex != null) {
             mRenderSrfTex.setTextureId(mEffectTextureId);
         }
     }

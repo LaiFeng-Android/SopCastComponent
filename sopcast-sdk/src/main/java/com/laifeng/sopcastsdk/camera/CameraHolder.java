@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.util.Log;
 
 import com.laifeng.sopcastsdk.camera.exception.CameraHardwareException;
 import com.laifeng.sopcastsdk.camera.exception.CameraNotSupportException;
@@ -45,6 +46,7 @@ public class CameraHolder {
     }
 
     private static CameraHolder sHolder;
+
     public static synchronized CameraHolder instance() {
         if (sHolder == null) {
             sHolder = new CameraHolder();
@@ -70,11 +72,11 @@ public class CameraHolder {
 
     public synchronized Camera openCamera()
             throws CameraHardwareException, CameraNotSupportException {
-        if(mCameraDatas == null || mCameraDatas.size() == 0) {
+        if (mCameraDatas == null || mCameraDatas.size() == 0) {
             mCameraDatas = CameraUtils.getAllCamerasData(isOpenBackFirst);
         }
         CameraData cameraData = mCameraDatas.get(0);
-        if(mCameraDevice != null && mCameraData == cameraData) {
+        if (mCameraDevice != null && mCameraData == cameraData) {
             return mCameraDevice;
         }
         if (mCameraDevice != null) {
@@ -87,7 +89,7 @@ public class CameraHolder {
             SopCastLog.e(TAG, "fail to connect Camera");
             throw new CameraHardwareException(e);
         }
-        if(mCameraDevice == null) {
+        if (mCameraDevice == null) {
             throw new CameraNotSupportException();
         }
         try {
@@ -105,9 +107,16 @@ public class CameraHolder {
 
     public void setSurfaceTexture(SurfaceTexture texture) {
         mTexture = texture;
-        if(mState == State.PREVIEW && mCameraDevice != null && mTexture != null) {
+        if (mState == State.PREVIEW && mCameraDevice != null && mTexture != null) {
             try {
+                Log.e(TAG, "setSurfaceTexture setPreviewTexture ..");
                 mCameraDevice.setPreviewTexture(mTexture);
+                mCameraDevice.setPreviewCallback(new Camera.PreviewCallback() {
+                    @Override
+                    public void onPreviewFrame(byte[] data, Camera camera) {
+                        Log.e(TAG, "onPreviewFrame ..");
+                    }
+                });
             } catch (IOException e) {
                 releaseCamera();
             }
@@ -125,17 +134,24 @@ public class CameraHolder {
     }
 
     public synchronized void startPreview() {
-        if(mState != State.OPENED) {
+        if (mState != State.OPENED) {
             return;
         }
-        if(mCameraDevice == null) {
+        if (mCameraDevice == null) {
             return;
         }
-        if(mTexture == null) {
+        if (mTexture == null) {
             return;
         }
         try {
+            Log.e(TAG, "setPreviewTexture ..");
             mCameraDevice.setPreviewTexture(mTexture);
+            mCameraDevice.setPreviewCallback(new Camera.PreviewCallback() {
+                @Override
+                public void onPreviewFrame(byte[] data, Camera camera) {
+                    Log.e(TAG, "onPreviewFrame ..");
+                }
+            });
             mCameraDevice.startPreview();
             mState = State.PREVIEW;
         } catch (Exception e) {
@@ -145,10 +161,10 @@ public class CameraHolder {
     }
 
     public synchronized void stopPreview() {
-        if(mState != State.PREVIEW) {
+        if (mState != State.PREVIEW) {
             return;
         }
-        if(mCameraDevice == null) {
+        if (mCameraDevice == null) {
             return;
         }
         mCameraDevice.setPreviewCallback(null);
@@ -163,13 +179,13 @@ public class CameraHolder {
     }
 
     public synchronized void releaseCamera() {
-        if(mState == State.PREVIEW) {
+        if (mState == State.PREVIEW) {
             stopPreview();
         }
-        if(mState != State.OPENED) {
+        if (mState != State.OPENED) {
             return;
         }
-        if(mCameraDevice == null) {
+        if (mCameraDevice == null) {
             return;
         }
         mCameraDevice.release();
@@ -187,7 +203,7 @@ public class CameraHolder {
     }
 
     public void setFocusPoint(int x, int y) {
-        if(mState != State.PREVIEW || mCameraDevice == null) {
+        if (mState != State.PREVIEW || mCameraDevice == null) {
             return;
         }
         if (x < -1000 || x > 1000 || y < -1000 || y > 1000) {
@@ -214,7 +230,7 @@ public class CameraHolder {
     }
 
     public boolean doAutofocus(Camera.AutoFocusCallback focusCallback) {
-        if(mState != State.PREVIEW || mCameraDevice == null) {
+        if (mState != State.PREVIEW || mCameraDevice == null) {
             return false;
         }
         // Make sure our auto settings aren't locked
@@ -234,12 +250,12 @@ public class CameraHolder {
     }
 
     public void changeFocusMode(boolean touchMode) {
-        if(mState != State.PREVIEW || mCameraDevice == null || mCameraData == null) {
+        if (mState != State.PREVIEW || mCameraDevice == null || mCameraData == null) {
             return;
         }
         isTouchMode = touchMode;
         mCameraData.touchFocusMode = touchMode;
-        if(touchMode) {
+        if (touchMode) {
             CameraUtils.setTouchFocusMode(mCameraDevice);
         } else {
             CameraUtils.setAutoFocusMode(mCameraDevice);
@@ -251,21 +267,21 @@ public class CameraHolder {
     }
 
     public float cameraZoom(boolean isBig) {
-        if(mState != State.PREVIEW || mCameraDevice == null || mCameraData == null) {
+        if (mState != State.PREVIEW || mCameraDevice == null || mCameraData == null) {
             return -1;
         }
         Camera.Parameters params = mCameraDevice.getParameters();
-        if(isBig) {
+        if (isBig) {
             params.setZoom(Math.min(params.getZoom() + 1, params.getMaxZoom()));
         } else {
             params.setZoom(Math.max(params.getZoom() - 1, 0));
         }
         mCameraDevice.setParameters(params);
-        return (float) params.getZoom()/params.getMaxZoom();
+        return (float) params.getZoom() / params.getMaxZoom();
     }
 
     public boolean switchCamera() {
-        if(mState != State.PREVIEW) {
+        if (mState != State.PREVIEW) {
             return false;
         }
         try {
@@ -289,10 +305,10 @@ public class CameraHolder {
     }
 
     public boolean switchLight() {
-        if(mState != State.PREVIEW || mCameraDevice == null || mCameraData == null) {
+        if (mState != State.PREVIEW || mCameraDevice == null || mCameraData == null) {
             return false;
         }
-        if(!mCameraData.hasLight) {
+        if (!mCameraData.hasLight) {
             return false;
         }
         Camera.Parameters cameraParameters = mCameraDevice.getParameters();
@@ -304,7 +320,7 @@ public class CameraHolder {
         try {
             mCameraDevice.setParameters(cameraParameters);
             return true;
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
